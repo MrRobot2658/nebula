@@ -1,0 +1,145 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "hermes-agent",
+  "elements": [
+    {
+      "type": "rectangle",
+      "id": "header_bg",
+      "x": 0,
+      "y": 0,
+      "width": 1500,
+      "height": 60,
+      "backgroundColor": "#1a237e",
+      "fillStyle": "solid",
+      "strokeColor": "#1a237e",
+      "strokeWidth": 0,
+      "opacity": 100,
+      "roughness": 0,
+      "roundness": null
+    },
+    {
+      "type": "text",
+      "id": "header_title",
+      "x": 30,
+      "y": 10,
+      "width": 500,
+      "height": 40,
+      "text": "Nebula 星云  ·  营销自动化平台",
+      "fontSize": 26,
+      "fontFamily": 1,
+      "strokeColor": "#ffffff",
+      "textAlign": "left",
+      "verticalAlign": "middle",
+      "originalText": "Nebula 星云  ·  营销自动化平台",
+      "autoResize": true
+    },
+    {
+      "type": "text",
+      "id": "header_status",
+      "x": 1350,
+      "y": 15,
+      "width": 100,
+      "height": 30,
+      "text": "⚡ 在线",
+      "fontSize": 18,
+      "fontFamily": 1,
+      "strokeColor": "#ffffff",
+      "textAlign": "right",
+      "verticalAlign": "middle",
+      "originalText": "⚡ 在线",
+      "autoResize": true
+    },
+
+    {"type": "rectangle", "id": "left_panel", "x": 0, "y": 60, "width": 260, "height": 760, "backgroundColor": "#f0f4ff", "fillStyle": "solid", "strokeColor": "#e0e7ff", "strokeWidth": 1, "roundness": null},
+    {"type": "rectangle", "id": "center_panel", "x": 260, "y": 60, "width": 700, "height": 760, "backgroundColor": "#ffffff", "fillStyle": "solid", "strokeColor": "#e5e7eb", "strokeWidth": 1, "roundness": null},
+    {"type": "rectangle", "id": "right_panel", "x": 960, "y": 60, "width": 540, "height": 760, "backgroundColor": "#f9fafb", "fillStyle": "solid", "strokeColor": "#e5e7eb", "strokeWidth": 1, "roundness": null},
+
+    {"type": "rectangle", "id": "nav_channel", "x": 10, "y": 80, "width": 240, "height": 32, "backgroundColor": "#e0e7ff", "fillStyle": "solid", "strokeColor": "#c7d2fe", "strokeWidth": 1, "roundness": {"type": 3}, "opacity": 80},
+    {"type": "text", "id": "nav_channel_t", "x": 20, "y": 82, "width": 80, "height": 28, "text": "📱 渠道", "fontSize": 18, "fontFamily": 1, "strokeColor": "#4338ca", "textAlign": "left", "verticalAlign": "middle", "containerId": "nav_channel", "originalText": "📱 渠道", "autoResize": true},
+
+    {"type": "text", "id": "ch_wechat", "x": 24, "y": 122, "width": 200, "height": 22, "text": "微信 WeChat", "fontSize": 16, "fontFamily": 1, "strokeColor": "#1e293b", "textAlign": "left", "verticalAlign": "middle", "originalText": "微信 WeChat", "autoResize": true},
+    {"type": "text", "id": "ch_wecom", "x": 24, "y": 150, "width": 200, "height": 22, "text": "企业微信 WeCom", "fontSize": 16, "fontFamily": 1, "strokeColor": "#1e293b", "textAlign": "left", "verticalAlign": "middle", "originalText": "企业微信 WeCom", "autoResize": true},
+    {"type": "text", "id": "ch_mp", "x": 24, "y": 178, "width": 200, "height": 22, "text": "公众号 Official Account", "fontSize": 16, "fontFamily": 1, "strokeColor": "#1e293b", "textAlign": "left", "verticalAlign": "middle", "originalText": "公众号 Official Account", "autoResize": true},
+    {"type": "text", "id": "ch_feishu", "x": 24, "y": 206, "width": 200, "height": 22, "text": "飞书 Feishu", "fontSize": 16, "fontFamily": 1, "strokeColor": "#1e293b", "textAlign": "left", "verticalAlign": "middle", "originalText": "飞书 Feishu", "autoResize": true},
+    {"type": "text", "id": "ch_dingtalk", "x": 24, "y": 234, "width": 200, "height": 22, "text": "钉钉 DingTalk", "fontSize": 16, "fontFamily": 1, "strokeColor": "#1e293b", "textAlign": "left", "verticalAlign": "middle", "originalText": "钉钉 DingTalk", "autoResize": true},
+    {"type": "text", "id": "ch_sms", "x": 24, "y": 262, "width": 200, "height": 22, "text": "短信 SMS", "fontSize": 16, "fontFamily": 1, "strokeColor": "#1e293b", "textAlign": "left", "verticalAlign": "middle", "originalText": "短信 SMS", "autoResize": true},
+    {"type": "text", "id": "ch_email", "x": 24, "y": 290, "width": 200, "height": 22, "text": "邮件 Email", "fontSize": 16, "fontFamily": 1, "strokeColor": "#1e293b", "textAlign": "left", "verticalAlign": "middle", "originalText": "邮件 Email", "autoResize": true},
+
+    {"type": "rectangle", "id": "nav_content", "x": 10, "y": 330, "width": 240, "height": 32, "backgroundColor": "#e0e7ff", "fillStyle": "solid", "strokeColor": "#c7d2fe", "strokeWidth": 1, "roundness": {"type": 3}, "opacity": 80},
+    {"type": "text", "id": "nav_content_t", "x": 20, "y": 332, "width": 80, "height": 28, "text": "📝 内容", "fontSize": 18, "fontFamily": 1, "strokeColor": "#4338ca", "textAlign": "left", "verticalAlign": "middle", "containerId": "nav_content", "originalText": "📝 内容", "autoResize": true},
+
+    {"type": "text", "id": "co_template", "x": 24, "y": 372, "width": 200, "height": 22, "text": "模板库 Templates", "fontSize": 16, "fontFamily": 1, "strokeColor": "#1e293b", "textAlign": "left", "verticalAlign": "middle", "originalText": "模板库 Templates", "autoResize": true},
+    {"type": "text", "id": "co_asset", "x": 24, "y": 400, "width": 200, "height": 22, "text": "素材库 Assets", "fontSize": 16, "fontFamily": 1, "strokeColor": "#1e293b", "textAlign": "left", "verticalAlign": "middle", "originalText": "素材库 Assets", "autoResize": true},
+    {"type": "text", "id": "co_abtest", "x": 24, "y": 428, "width": 200, "height": 22, "text": "A/B 测试 A/B Test", "fontSize": 16, "fontFamily": 1, "strokeColor": "#1e293b", "textAlign": "left", "verticalAlign": "middle", "originalText": "A/B 测试 A/B Test", "autoResize": true},
+    {"type": "text", "id": "co_personalize", "x": 24, "y": 456, "width": 200, "height": 22, "text": "个性化 Personalization", "fontSize": 16, "fontFamily": 1, "strokeColor": "#1e293b", "textAlign": "left", "verticalAlign": "middle", "originalText": "个性化 Personalization", "autoResize": true},
+
+    {"type": "rectangle", "id": "nav_activity", "x": 10, "y": 496, "width": 240, "height": 32, "backgroundColor": "#e0e7ff", "fillStyle": "solid", "strokeColor": "#c7d2fe", "strokeWidth": 1, "roundness": {"type": 3}, "opacity": 80},
+    {"type": "text", "id": "nav_activity_t", "x": 20, "y": 498, "width": 80, "height": 28, "text": "🎯 活动", "fontSize": 18, "fontFamily": 1, "strokeColor": "#4338ca", "textAlign": "left", "verticalAlign": "middle", "containerId": "nav_activity", "originalText": "🎯 活动", "autoResize": true},
+
+    {"type": "text", "id": "ac_automation", "x": 24, "y": 538, "width": 200, "height": 22, "text": "自动化流程 Automation", "fontSize": 16, "fontFamily": 1, "strokeColor": "#1e293b", "textAlign": "left", "verticalAlign": "middle", "originalText": "自动化流程 Automation", "autoResize": true},
+    {"type": "text", "id": "ac_trigger", "x": 24, "y": 566, "width": 200, "height": 22, "text": "触发器 Triggers", "fontSize": 16, "fontFamily": 1, "strokeColor": "#1e293b", "textAlign": "left", "verticalAlign": "middle", "originalText": "触发器 Triggers", "autoResize": true},
+    {"type": "text", "id": "ac_scoring", "x": 24, "y": 594, "width": 200, "height": 22, "text": "评分模型 Scoring", "fontSize": 16, "fontFamily": 1, "strokeColor": "#1e293b", "textAlign": "left", "verticalAlign": "middle", "originalText": "评分模型 Scoring", "autoResize": true},
+    {"type": "text", "id": "ac_analytics", "x": 24, "y": 622, "width": 200, "height": 22, "text": "分析报表 Analytics", "fontSize": 16, "fontFamily": 1, "strokeColor": "#1e293b", "textAlign": "left", "verticalAlign": "middle", "originalText": "分析报表 Analytics", "autoResize": true},
+
+    {"type": "text", "id": "nav_footer", "x": 24, "y": 700, "width": 220, "height": 18, "text": "Skill 插件已加载 3/12 个", "fontSize": 14, "fontFamily": 1, "strokeColor": "#94a3b8", "textAlign": "left", "verticalAlign": "middle", "originalText": "Skill 插件已加载 3/12 个", "autoResize": true},
+
+    {"type": "rectangle", "id": "chat_header", "x": 270, "y": 70, "width": 680, "height": 45, "backgroundColor": "#f8fafc", "fillStyle": "solid", "strokeColor": "#e2e8f0", "strokeWidth": 1, "roundness": null},
+    {"type": "text", "id": "chat_title", "x": 280, "y": 76, "width": 200, "height": 30, "text": "对话: 李四", "fontSize": 18, "fontFamily": 1, "strokeColor": "#1e293b", "textAlign": "left", "verticalAlign": "middle", "originalText": "对话: 李四", "autoResize": true},
+
+    {"type": "rectangle", "id": "chat_channel_tag", "x": 400, "y": 78, "width": 70, "height": 26, "backgroundColor": "#dcfce7", "fillStyle": "solid", "strokeColor": "#86efac", "strokeWidth": 1, "roundness": {"type": 3}},
+    {"type": "text", "id": "chat_channel_tag_t", "x": 410, "y": 80, "width": 50, "height": 22, "text": "微信", "fontSize": 14, "fontFamily": 1, "strokeColor": "#15803d", "textAlign": "center", "verticalAlign": "middle", "containerId": "chat_channel_tag", "originalText": "微信", "autoResize": true},
+
+    {"type": "text", "id": "chat_time", "x": 780, "y": 80, "width": 160, "height": 22, "text": "今日 14:23", "fontSize": 14, "fontFamily": 1, "strokeColor": "#94a3b8", "textAlign": "right", "verticalAlign": "middle", "originalText": "今日 14:23", "autoResize": true},
+
+    {"type": "rectangle", "id": "msg_customer", "x": 285, "y": 135, "width": 360, "height": 50, "backgroundColor": "#f1f5f9", "fillStyle": "solid", "strokeColor": "#cbd5e1", "strokeWidth": 1, "roundness": {"type": 3}},
+    {"type": "text", "id": "msg_customer_t", "x": 295, "y": 142, "width": 340, "height": 36, "text": "你好，我想了解一下你们的产品，\n能发个介绍吗？", "fontSize": 16, "fontFamily": 1, "strokeColor": "#1e293b", "textAlign": "left", "verticalAlign": "top", "containerId": "msg_customer", "originalText": "你好，我想了解一下你们的产品，\n能发个介绍吗？", "autoResize": true},
+
+    {"type": "rectangle", "id": "msg_agent", "x": 530, "y": 205, "width": 400, "height": 55, "backgroundColor": "#dbeafe", "fillStyle": "solid", "strokeColor": "#93c5fd", "strokeWidth": 1, "roundness": {"type": 3}},
+    {"type": "text", "id": "msg_agent_t", "x": 540, "y": 210, "width": 380, "height": 44, "text": "好的！我们 Quasar 数据平台支持\n智能分析，我给您发份资料看看。", "fontSize": 16, "fontFamily": 1, "strokeColor": "#1e3a5f", "textAlign": "left", "verticalAlign": "top", "containerId": "msg_agent", "originalText": "好的！我们 Quasar 数据平台支持\n智能分析，我给您发份资料看看。", "autoResize": true},
+
+    {"type": "rectangle", "id": "ai_bar", "x": 280, "y": 280, "width": 660, "height": 38, "backgroundColor": "#fef3c7", "fillStyle": "solid", "strokeColor": "#fde68a", "strokeWidth": 1, "roundness": {"type": 3}},
+    {"type": "text", "id": "ai_bar_t", "x": 294, "y": 286, "width": 630, "height": 26, "text": "AI 建议：客户为高意向新客，建议回复产品介绍 + 推送夏日优惠券", "fontSize": 15, "fontFamily": 1, "strokeColor": "#92400e", "textAlign": "left", "verticalAlign": "middle", "originalText": "AI 建议：客户为高意向新客，建议回复产品介绍 + 推送夏日优惠券", "autoResize": true},
+
+    {"type": "rectangle", "id": "reply_area", "x": 280, "y": 730, "width": 540, "height": 40, "backgroundColor": "#ffffff", "fillStyle": "solid", "strokeColor": "#d1d5db", "strokeWidth": 1, "roundness": {"type": 3}},
+    {"type": "text", "id": "reply_area_t", "x": 294, "y": 738, "width": 240, "height": 24, "text": "输入消息...", "fontSize": 16, "fontFamily": 1, "strokeColor": "#9ca3af", "textAlign": "left", "verticalAlign": "middle", "originalText": "输入消息...", "autoResize": true},
+
+    {"type": "rectangle", "id": "send_btn", "x": 830, "y": 730, "width": 100, "height": 40, "backgroundColor": "#3b82f6", "fillStyle": "solid", "strokeColor": "#2563eb", "strokeWidth": 1, "roundness": {"type": 3}},
+    {"type": "text", "id": "send_btn_t", "x": 840, "y": 736, "width": 80, "height": 28, "text": "发送", "fontSize": 18, "fontFamily": 1, "strokeColor": "#ffffff", "textAlign": "center", "verticalAlign": "middle", "containerId": "send_btn", "originalText": "发送", "autoResize": true},
+
+    {"type": "rectangle", "id": "asset_1", "x": 286, "y": 680, "width": 60, "height": 40, "backgroundColor": "#f0f0ff", "fillStyle": "solid", "strokeColor": "#c7d2fe", "strokeWidth": 1, "roundness": {"type": 3}},
+    {"type": "rectangle", "id": "asset_2", "x": 356, "y": 680, "width": 60, "height": 40, "backgroundColor": "#f0fdf4", "fillStyle": "solid", "strokeColor": "#bbf7d0", "strokeWidth": 1, "roundness": {"type": 3}},
+    {"type": "rectangle", "id": "asset_3", "x": 426, "y": 680, "width": 60, "height": 40, "backgroundColor": "#fff7ed", "fillStyle": "solid", "strokeColor": "#fed7aa", "strokeWidth": 1, "roundness": {"type": 3}},
+    {"type": "text", "id": "asset_1_t", "x": 288, "y": 688, "width": 56, "height": 24, "text": "产品图", "fontSize": 12, "fontFamily": 1, "strokeColor": "#4338ca", "textAlign": "center", "verticalAlign": "middle", "originalText": "产品图", "autoResize": true},
+    {"type": "text", "id": "asset_2_t", "x": 358, "y": 688, "width": 56, "height": 24, "text": "介绍", "fontSize": 12, "fontFamily": 1, "strokeColor": "#15803d", "textAlign": "center", "verticalAlign": "middle", "originalText": "介绍", "autoResize": true},
+    {"type": "text", "id": "asset_3_t", "x": 428, "y": 688, "width": 56, "height": 24, "text": "优惠券", "fontSize": 12, "fontFamily": 1, "strokeColor": "#9a3412", "textAlign": "center", "verticalAlign": "middle", "originalText": "优惠券", "autoResize": true},
+
+    {"type": "rectangle", "id": "right_customer", "x": 975, "y": 80, "width": 510, "height": 180, "backgroundColor": "#ffffff", "fillStyle": "solid", "strokeColor": "#e2e8f0", "strokeWidth": 1, "roundness": {"type": 3}},
+
+    {"type": "text", "id": "rc_title", "x": 990, "y": 90, "width": 200, "height": 26, "text": "客户信息", "fontSize": 17, "fontFamily": 1, "strokeColor": "#1e293b", "textAlign": "left", "verticalAlign": "middle", "originalText": "客户信息", "autoResize": true},
+    {"type": "text", "id": "rc_name", "x": 990, "y": 122, "width": 100, "height": 22, "text": "姓名：李四", "fontSize": 15, "fontFamily": 1, "strokeColor": "#475569", "textAlign": "left", "verticalAlign": "middle", "originalText": "姓名：李四", "autoResize": true},
+    {"type": "text", "id": "rc_channel", "x": 990, "y": 148, "width": 100, "height": 22, "text": "渠道：微信", "fontSize": 15, "fontFamily": 1, "strokeColor": "#475569", "textAlign": "left", "verticalAlign": "middle", "originalText": "渠道：微信", "autoResize": true},
+    {"type": "text", "id": "rc_tags", "x": 990, "y": 174, "width": 300, "height": 22, "text": "标签：高意向 · 新客 · 华东", "fontSize": 15, "fontFamily": 1, "strokeColor": "#475569", "textAlign": "left", "verticalAlign": "middle", "originalText": "标签：高意向 · 新客 · 华东", "autoResize": true},
+    {"type": "text", "id": "rc_interact", "x": 990, "y": 200, "width": 200, "height": 22, "text": "最近互动：2次 (今日)", "fontSize": 15, "fontFamily": 1, "strokeColor": "#475569", "textAlign": "left", "verticalAlign": "middle", "originalText": "最近互动：2次 (今日)", "autoResize": true},
+    {"type": "text", "id": "rc_score", "x": 1200, "y": 122, "width": 150, "height": 22, "text": "评分：88 (高意向)", "fontSize": 15, "fontFamily": 1, "strokeColor": "#475569", "textAlign": "left", "verticalAlign": "middle", "originalText": "评分：88 (高意向)", "autoResize": true},
+
+    {"type": "rectangle", "id": "right_campaign", "x": 975, "y": 280, "width": 510, "height": 140, "backgroundColor": "#ffffff", "fillStyle": "solid", "strokeColor": "#e2e8f0", "strokeWidth": 1, "roundness": {"type": 3}},
+    {"type": "text", "id": "rcam_title", "x": 990, "y": 290, "width": 200, "height": 26, "text": "营销活动", "fontSize": 17, "fontFamily": 1, "strokeColor": "#1e293b", "textAlign": "left", "verticalAlign": "middle", "originalText": "营销活动", "autoResize": true},
+    {"type": "text", "id": "rcam_1", "x": 990, "y": 322, "width": 400, "height": 22, "text": "🟢 夏日清凉促销 (进行中)", "fontSize": 15, "fontFamily": 1, "strokeColor": "#475569", "textAlign": "left", "verticalAlign": "middle", "originalText": "🟢 夏日清凉促销 (进行中)", "autoResize": true},
+    {"type": "text", "id": "rcam_2", "x": 990, "y": 348, "width": 400, "height": 22, "text": "🔵 新客首单优惠 (已参与)", "fontSize": 15, "fontFamily": 1, "strokeColor": "#475569", "textAlign": "left", "verticalAlign": "middle", "originalText": "🔵 新客首单优惠 (已参与)", "autoResize": true},
+    {"type": "text", "id": "rcam_3", "x": 990, "y": 374, "width": 400, "height": 22, "text": "🟡 会员日双倍积分 (即将开始)", "fontSize": 15, "fontFamily": 1, "strokeColor": "#475569", "textAlign": "left", "verticalAlign": "middle", "originalText": "🟡 会员日双倍积分 (即将开始)", "autoResize": true},
+
+    {"type": "rectangle", "id": "right_automation", "x": 975, "y": 440, "width": 510, "height": 160, "backgroundColor": "#ffffff", "fillStyle": "solid", "strokeColor": "#e2e8f0", "strokeWidth": 1, "roundness": {"type": 3}},
+    {"type": "text", "id": "rauto_title", "x": 990, "y": 450, "width": 200, "height": 26, "text": "自动化规则", "fontSize": 17, "fontFamily": 1, "strokeColor": "#1e293b", "textAlign": "left", "verticalAlign": "middle", "originalText": "自动化规则", "autoResize": true},
+
+    {"type": "rectangle", "id": "rauto_rule", "x": 990, "y": 485, "width": 480, "height": 80, "backgroundColor": "#f0fdf4", "fillStyle": "solid", "strokeColor": "#bbf7d0", "strokeWidth": 1, "roundness": {"type": 3}},
+    {"type": "text", "id": "rauto_rule_header", "x": 1000, "y": 490, "width": 460, "height": 22, "text": "触发：客户首次发送消息", "fontSize": 15, "fontFamily": 1, "strokeColor": "#166534", "textAlign": "left", "verticalAlign": "middle", "originalText": "触发：客户首次发送消息", "autoResize": true},
+    {"type": "text", "id": "rauto_rule_body", "x": 1000, "y": 514, "width": 460, "height": 44, "text": "条件：新客标签 & 高意向评分\n动作：发送欢迎消息 → 推送优惠券 → 标记跟进", "fontSize": 14, "fontFamily": 1, "strokeColor": "#475569", "textAlign": "left", "verticalAlign": "top", "originalText": "条件：新客标签 & 高意向评分\n动作：发送欢迎消息 → 推送优惠券 → 标记跟进", "autoResize": true},
+
+    {"type": "rectangle", "id": "navigation_label", "x": 10, "y": 660, "width": 240, "height": 28, "backgroundColor": "#f1f5f9", "fillStyle": "solid", "strokeColor": "#e2e8f0", "strokeWidth": 1, "roundness": {"type": 3}},
+    {"type": "text", "id": "navigation_label_t", "x": 20, "y": 662, "width": 220, "height": 24, "text": "点击切换 Skill 面板", "fontSize": 14, "fontFamily": 1, "strokeColor": "#64748b", "textAlign": "center", "verticalAlign": "middle", "containerId": "navigation_label", "originalText": "点击切换 Skill 面板", "autoResize": true}
+  ],
+  "appState": {
+    "viewBackgroundColor": "#ffffff"
+  }
+}
