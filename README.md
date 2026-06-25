@@ -2,7 +2,7 @@
 
 Marketing Automation Agent — 以 ChatUI 为核心交互，9 渠道/5 内容/6 活动 Skill 插件化架构。
 
-🚀 **在线文档**: [https://nebula-mauve.vercel.app](https://nebula-mauve.vercel.app) (deploying...)
+🚀 **在线文档**: [https://nebula-eight-taupe.vercel.app](https://nebula-eight-taupe.vercel.app)
 
 ## 文档结构
 
