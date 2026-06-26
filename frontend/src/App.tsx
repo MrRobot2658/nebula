@@ -1,7 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import AppLayout from './components/AppLayout'
 import ChatHome from './pages/ChatHome'
-import Settings from './pages/Settings'
 import Dashboard from './pages/Dashboard'
 import Customers from './pages/Customers'
 import CustomerDetail from './pages/CustomerDetail'
@@ -29,7 +28,6 @@ export default function App() {
         <Route element={<AppLayout />}>
           <Route path="/" element={<ChatHome />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/settings" element={<Settings />} />
           <Route path="/customers" element={<Customers />} />
           <Route path="/customers/:id" element={<CustomerDetail />} />
           <Route path="/inbox" element={<Inbox />} />

@@ -10,11 +10,15 @@ from .models import (
     Flow,
     Form,
     LandingPage,
+    McpServer,
     Member,
+    Memory,
     Message,
     OfflineEvent,
     Order,
     Poster,
+    Skill,
+    Tenant,
     PointTransaction,
     ScoreRule,
     Template,
@@ -196,6 +200,49 @@ def seed_features() -> None:
                         db.add(
                             Order(customer_id=customer.id, amount=o["amount"], items=o["items"], status="paid")
                         )
+
+        # ----- Settings: built-in Skills, MCP, Memory, Tenants -----
+        if db.query(Skill).count() == 0:
+            builtin_skills = [
+                ("chatui", "ChatUI 对话", "core", "对话式工作台与收件箱", "/inbox"),
+                ("dashboard", "概览看板", "data", "关键指标与消息趋势", "/dashboard"),
+                ("customers", "客户", "data", "客户档案与 360 画像", "/customers"),
+                ("events", "事件流", "data", "实时事件总线", "/events"),
+                ("channels", "渠道", "channel", "9 渠道触达接入", "/channels"),
+                ("templates", "模板库", "content", "跨渠道消息模板", "/templates"),
+                ("campaigns", "营销活动", "content", "活动管理与统计", "/campaigns"),
+                ("forms", "表单", "content", "线索收集表单", "/forms"),
+                ("landing", "落地页", "content", "营销落地页与公开链接", "/landing-pages"),
+                ("posters", "海报", "content", "营销海报与二维码", "/posters"),
+                ("members", "会员", "growth", "会员等级与积分", "/members"),
+                ("scoring", "评分模型", "activity", "客户评分规则", "/scoring"),
+                ("flows", "营销画布", "activity", "拖拽式自动化流程", "/flows"),
+                ("webinars", "线上直播", "activity", "直播与表单推送", "/webinars"),
+                ("offline", "线下会议", "activity", "扫码报名与签到", "/offline-events"),
+            ]
+            for key, name, cat, desc, route in builtin_skills:
+                db.add(Skill(key=key, name=name, category=cat, description=desc, route=route, enabled=True, builtin=True))
+
+        if db.query(McpServer).count() == 0:
+            db.add_all([
+                McpServer(name="统一数据层 MCP", url="mcp://data-layer", description="CDP / OneID / 事件总线", status="connected", tools=8),
+                McpServer(name="渠道网关 MCP", url="mcp://channels", description="9 渠道收发与事件模拟", status="connected", tools=9),
+                McpServer(name="DeepSeek Gateway", url="https://api.deepseek.com", description="LLM 意图分析与回复", status="connected", tools=2),
+                McpServer(name="Airflow MCP", url="http://airflow:8080", description="自动化流程编排执行", status="connected", tools=4),
+            ])
+
+        if db.query(Memory).count() == 0:
+            db.add_all([
+                Memory(scope="global", title="高意向阈值", content="客户评分达到 80 视为高意向，自动进入跟进流程。"),
+                Memory(scope="global", title="品牌口径", content="回复统一使用亲切、专业的语气，结尾可带 emoji。"),
+                Memory(scope="customer", title="重点客户", content="王五为金卡会员，优先人工跟进。"),
+            ])
+
+        if db.query(Tenant).count() == 0:
+            db.add_all([
+                Tenant(name="星云演示租户", plan="Pro", status="active", seats=20),
+                Tenant(name="Acme 体验", plan="Trial", status="active", seats=5),
+            ])
 
         # Flush so later blocks (webinar/offline) can resolve form/landing/poster by query.
         db.flush()

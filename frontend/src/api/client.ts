@@ -21,16 +21,22 @@ import type {
   FormDetail,
   FormSubmission,
   LandingPage,
+  McpServer,
   Member,
   MemberDetail,
+  Memory,
   Message,
   OfflineEvent,
   OfflineEventDetail,
   Order,
   OrderItem,
   Poster,
+  Role,
   ScoreRule,
+  Skill,
   Template,
+  Tenant,
+  TokenUsage,
   Webinar,
   WebinarDetail,
 } from './types'
@@ -492,5 +498,65 @@ export async function getFlowRuns(id: number): Promise<FlowRun[]> {
 
 export async function getAbResults(id: number): Promise<AbResult[]> {
   const { data } = await api.get<AbResult[]>(`/flows/${id}/abtest-results`)
+  return data
+}
+
+// ---- Settings: Skills ----
+export async function getSkills(): Promise<Skill[]> {
+  const { data } = await api.get<Skill[]>('/skills')
+  return data
+}
+
+export async function patchSkill(id: number, body: { enabled: boolean }): Promise<Skill> {
+  const { data } = await api.patch<Skill>(`/skills/${id}`, body)
+  return data
+}
+
+// ---- Settings: MCP servers ----
+export async function getMcpServers(): Promise<McpServer[]> {
+  const { data } = await api.get<McpServer[]>('/mcp-servers')
+  return data
+}
+
+export async function patchMcpServer(
+  id: number,
+  body: { enabled: boolean }
+): Promise<McpServer> {
+  const { data } = await api.patch<McpServer>(`/mcp-servers/${id}`, body)
+  return data
+}
+
+// ---- Settings: Memories ----
+export async function getMemories(): Promise<Memory[]> {
+  const { data } = await api.get<Memory[]>('/memories')
+  return data
+}
+
+export async function createMemory(body: {
+  title: string
+  content: string
+  scope?: string
+}): Promise<Memory> {
+  const { data } = await api.post<Memory>('/memories', body)
+  return data
+}
+
+export async function deleteMemory(id: number): Promise<void> {
+  await api.delete(`/memories/${id}`)
+}
+
+// ---- Settings: Tenants / Roles / Token usage ----
+export async function getTenants(): Promise<Tenant[]> {
+  const { data } = await api.get<Tenant[]>('/tenants')
+  return data
+}
+
+export async function getRoles(): Promise<Role[]> {
+  const { data } = await api.get<Role[]>('/roles')
+  return data
+}
+
+export async function getTokenUsage(): Promise<TokenUsage> {
+  const { data } = await api.get<TokenUsage>('/token-usage')
   return data
 }

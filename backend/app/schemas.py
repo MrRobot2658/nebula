@@ -418,6 +418,74 @@ class AbResult(BaseModel):
     count: int
 
 
+# ---------- Settings: Skills / MCP / Memory / Tenant / Roles / Token ----------
+class SkillOut(ORMModel):
+    id: int
+    key: str
+    name: str
+    category: str
+    description: str
+    route: Optional[str] = None
+    enabled: bool
+    builtin: bool
+
+
+class EnabledPatch(BaseModel):
+    enabled: bool
+
+
+class McpServerOut(ORMModel):
+    id: int
+    name: str
+    url: str
+    description: str
+    status: str
+    tools: int
+    enabled: bool
+
+
+class MemoryOut(ORMModel):
+    id: int
+    scope: str
+    title: str
+    content: str
+    created_at: datetime
+
+
+class MemoryCreate(BaseModel):
+    title: str
+    content: str = ""
+    scope: str = "global"
+
+
+class TenantOut(ORMModel):
+    id: int
+    name: str
+    plan: str
+    status: str
+    seats: int
+    created_at: datetime
+
+
+class RoleOut(BaseModel):
+    key: str
+    name: str
+    description: str
+    permissions: list[str]
+
+
+class TokenUsagePoint(BaseModel):
+    date: str
+    tokens: int
+
+
+class TokenUsageOut(BaseModel):
+    total_calls: int
+    total_tokens: int
+    by_day: list[TokenUsagePoint]
+    by_model: list[dict[str, Any]]
+
+
 # ---------- Orders (订单 / 购买商品) ----------
 class OrderItem(BaseModel):
     name: str

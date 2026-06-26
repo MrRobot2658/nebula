@@ -261,6 +261,54 @@ class Order(Base):
     created_at = Column(DateTime, default=_now)
 
 
+class Skill(Base):
+    __tablename__ = "skills"
+
+    id = Column(Integer, primary_key=True)
+    key = Column(String(64), unique=True, nullable=False)
+    name = Column(String(96), nullable=False)
+    category = Column(String(32), nullable=False, default="core")  # core/data/channel/content/activity/growth
+    description = Column(String(255), nullable=False, default="")
+    route = Column(String(96), nullable=True)
+    enabled = Column(Boolean, nullable=False, default=True)
+    builtin = Column(Boolean, nullable=False, default=True)
+    created_at = Column(DateTime, default=_now)
+
+
+class McpServer(Base):
+    __tablename__ = "mcp_servers"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(96), nullable=False)
+    url = Column(String(255), nullable=False, default="")
+    description = Column(String(255), nullable=False, default="")
+    status = Column(String(16), nullable=False, default="connected")
+    tools = Column(Integer, nullable=False, default=0)
+    enabled = Column(Boolean, nullable=False, default=True)
+    created_at = Column(DateTime, default=_now)
+
+
+class Memory(Base):
+    __tablename__ = "memories"
+
+    id = Column(Integer, primary_key=True)
+    scope = Column(String(32), nullable=False, default="global")
+    title = Column(String(128), nullable=False)
+    content = Column(Text, nullable=False, default="")
+    created_at = Column(DateTime, default=_now)
+
+
+class Tenant(Base):
+    __tablename__ = "tenants"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(96), nullable=False)
+    plan = Column(String(32), nullable=False, default="Trial")
+    status = Column(String(16), nullable=False, default="active")
+    seats = Column(Integer, nullable=False, default=5)
+    created_at = Column(DateTime, default=_now)
+
+
 class Event(Base):
     __tablename__ = "events"
 

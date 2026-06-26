@@ -8,7 +8,7 @@ import {
   type ChatSession,
 } from '../lib/sessions'
 
-export default function Sidebar() {
+export default function Sidebar({ onOpenSettings }: { onOpenSettings: () => void }) {
   const navigate = useNavigate()
   const location = useLocation()
   const [sessions, setSessions] = useState<ChatSession[]>([])
@@ -99,13 +99,8 @@ export default function Sidebar() {
       <div className="space-y-1 border-t border-slate-100 p-3">
         <button
           data-testid="settings-nav"
-          onClick={() => navigate('/settings')}
-          className={clsx(
-            'flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors',
-            location.pathname === '/settings'
-              ? 'bg-brand-50 text-brand-700'
-              : 'text-slate-600 hover:bg-slate-50'
-          )}
+          onClick={onOpenSettings}
+          className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50"
         >
           <Settings size={16} /> 设置
         </button>

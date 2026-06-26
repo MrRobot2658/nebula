@@ -242,6 +242,30 @@ class FeaturesTestCase(unittest.TestCase):
         self.assertGreaterEqual(len(self.client.get(f"/api/flows/{fid}/runs").json()), 6)
 
 
+    # ---- settings: skills / mcp / memory / tenants / roles / token ----
+    def test_settings_sections(self):
+        skills = self.client.get("/api/skills").json()
+        self.assertGreaterEqual(len(skills), 10)
+        self.assertTrue(all(s["builtin"] for s in skills))
+        sid = skills[0]["id"]
+        self.assertFalse(self.client.patch(f"/api/skills/{sid}", json={"enabled": False}).json()["enabled"])
+
+        self.assertGreaterEqual(len(self.client.get("/api/mcp-servers").json()), 3)
+        self.assertGreaterEqual(len(self.client.get("/api/tenants").json()), 1)
+        self.assertTrue(any(r["key"] == "admin" for r in self.client.get("/api/roles").json()))
+
+        # memory CRUD
+        before = len(self.client.get("/api/memories").json())
+        m = self.client.post("/api/memories", json={"title": "单测记忆", "content": "x"})
+        self.assertEqual(m.status_code, 201)
+        self.assertEqual(len(self.client.get("/api/memories").json()), before + 1)
+        self.assertEqual(self.client.delete(f"/api/memories/{m.json()['id']}").status_code, 204)
+
+        usage = self.client.get("/api/token-usage").json()
+        self.assertIn("total_tokens", usage)
+        self.assertEqual(len(usage["by_day"]), 7)
+
+
 class MembershipUtilTest(unittest.TestCase):
     def test_level_for(self):
         self.assertEqual(level_for(0), "普通会员")

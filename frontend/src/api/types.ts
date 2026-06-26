@@ -376,3 +376,56 @@ export interface AssistantChatResponse {
   views: ChatView[]
   navigate?: { path: string; label?: string } | null
 }
+
+// ---- Settings: Skills / MCP / Memory / Tenants / Roles / Token ----
+export interface Skill {
+  id: number
+  key: string
+  name: string
+  category: string
+  description: string
+  route: string
+  enabled: boolean
+  builtin: boolean
+}
+
+export interface McpServer {
+  id: number
+  name: string
+  url: string
+  description: string
+  status: string
+  tools: number
+  enabled: boolean
+}
+
+export interface Memory {
+  id: number
+  scope: string
+  title: string
+  content: string
+  created_at: string
+}
+
+export interface Tenant {
+  id: number
+  name: string
+  plan: string
+  status: string
+  seats: number
+  created_at: string
+}
+
+export interface Role {
+  key: string
+  name: string
+  description: string
+  permissions: string[]
+}
+
+export interface TokenUsage {
+  total_calls: number
+  total_tokens: number
+  by_day: { date: string; tokens: number }[]
+  by_model: { model: string; tokens: number; calls: number }[]
+}
