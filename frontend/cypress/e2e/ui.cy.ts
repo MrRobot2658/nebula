@@ -2,7 +2,7 @@
 
 describe('Nebula 控制台 UI e2e', () => {
   it('仪表盘展示统计卡片', () => {
-    cy.visit('/')
+    cy.visit('/dashboard')
     cy.get('[data-testid="stat-customers"]', { timeout: 15000 }).should('be.visible')
     cy.contains('客户总数').should('be.visible')
     cy.contains('平均评分').should('be.visible')

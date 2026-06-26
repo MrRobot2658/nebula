@@ -1,90 +1,33 @@
+import { useEffect, useState } from 'react'
+import { MessageSquare, Plus, Settings, Sparkles } from 'lucide-react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import clsx from 'clsx'
 import {
-  Boxes,
-  CalendarDays,
-  Crown,
-  FileText,
-  GitBranch,
-  Image,
-  LayoutDashboard,
-  LayoutTemplate,
-  MessageSquare,
-  Megaphone,
-  Radio,
-  Sparkles,
-  Target,
-  Users,
-  Video,
-} from 'lucide-react'
-import type { LucideIcon } from 'lucide-react'
-import { NavLink } from 'react-router-dom'
-
-interface NavItem {
-  to: string
-  label: string
-  icon: LucideIcon
-  end?: boolean
-}
-
-interface NavGroup {
-  title: string
-  items: NavItem[]
-}
-
-const groups: NavGroup[] = [
-  {
-    title: '概览',
-    items: [{ to: '/', label: '仪表盘', icon: LayoutDashboard, end: true }],
-  },
-  {
-    title: '客户',
-    items: [
-      { to: '/customers', label: '客户列表', icon: Users },
-      { to: '/inbox', label: '对话收件箱', icon: MessageSquare },
-    ],
-  },
-  {
-    title: '渠道',
-    items: [{ to: '/channels', label: '渠道接入', icon: Radio }],
-  },
-  {
-    title: '内容',
-    items: [
-      { to: '/templates', label: '模板库', icon: FileText },
-      { to: '/campaigns', label: '营销活动', icon: Megaphone },
-    ],
-  },
-  {
-    title: '自动化',
-    items: [{ to: '/scoring', label: '评分模型', icon: Target }],
-  },
-  {
-    title: '增长',
-    items: [
-      { to: '/forms', label: '表单', icon: FileText },
-      { to: '/landing-pages', label: '落地页', icon: LayoutTemplate },
-      { to: '/posters', label: '海报', icon: Image },
-      { to: '/members', label: '会员', icon: Crown },
-    ],
-  },
-  {
-    title: '活动',
-    items: [
-      { to: '/webinars', label: '线上直播', icon: Video },
-      { to: '/offline-events', label: '线下会议', icon: CalendarDays },
-      { to: '/flows', label: '自动化', icon: GitBranch },
-    ],
-  },
-  {
-    title: '系统',
-    items: [{ to: '/events', label: '事件流', icon: Boxes }],
-  },
-]
+  loadSessions,
+  SESSIONS_EVENT,
+  type ChatSession,
+} from '../lib/sessions'
 
 export default function Sidebar() {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const [sessions, setSessions] = useState<ChatSession[]>([])
+
+  const activeSession = new URLSearchParams(location.search).get('session')
+
+  useEffect(() => {
+    const reload = () => setSessions(loadSessions())
+    reload()
+    window.addEventListener(SESSIONS_EVENT, reload)
+    return () => window.removeEventListener(SESSIONS_EVENT, reload)
+  }, [location])
+
+  const newChat = () => navigate(`/?new=${Date.now()}`)
+
   return (
-    <aside className="hidden md:flex w-64 shrink-0 flex-col border-r border-slate-200 bg-white">
-      <div className="flex items-center gap-3 px-6 h-16 border-b border-slate-100">
+    <aside className="hidden md:flex w-[260px] shrink-0 flex-col border-r border-slate-200 bg-white">
+      {/* Brand */}
+      <div className="flex items-center gap-3 px-5 h-16 border-b border-slate-100">
         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white font-bold shadow-sm">
           N
         </div>
@@ -95,35 +38,62 @@ export default function Sidebar() {
           </div>
         </div>
       </div>
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
-        {groups.map((group) => (
-          <div key={group.title}>
-            <div className="px-3 mb-1 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-              {group.title}
-            </div>
-            <div className="space-y-0.5">
-              {group.items.map((item) => (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  end={item.end}
-                  className={({ isActive }) =>
-                    clsx(
-                      'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                      isActive
-                        ? 'bg-brand-50 text-brand-700'
-                        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                    )
-                  }
-                >
-                  <item.icon size={18} />
-                  {item.label}
-                </NavLink>
-              ))}
-            </div>
+
+      {/* New chat */}
+      <div className="p-3">
+        <button
+          data-testid="new-chat-button"
+          onClick={newChat}
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-600 px-3 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-700"
+        >
+          <Plus size={16} /> 新会话
+        </button>
+      </div>
+
+      {/* Sessions */}
+      <div className="flex-1 overflow-y-auto px-3">
+        <div className="px-2 pb-1 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+          会话
+        </div>
+        {sessions.length === 0 ? (
+          <div className="px-2 py-6 text-center text-xs text-slate-400">暂无会话</div>
+        ) : (
+          <div className="space-y-0.5">
+            {sessions.map((s) => (
+              <button
+                key={s.id}
+                data-testid="session-item"
+                onClick={() => navigate(`/?session=${s.id}`)}
+                className={clsx(
+                  'flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm transition-colors',
+                  activeSession === s.id
+                    ? 'bg-brand-50 text-brand-700'
+                    : 'text-slate-600 hover:bg-slate-50'
+                )}
+              >
+                <MessageSquare size={15} className="shrink-0 text-slate-400" />
+                <span className="truncate">{s.title}</span>
+              </button>
+            ))}
           </div>
-        ))}
-      </nav>
+        )}
+      </div>
+
+      {/* Settings pinned bottom */}
+      <div className="border-t border-slate-100 p-3">
+        <button
+          data-testid="settings-nav"
+          onClick={() => navigate('/settings')}
+          className={clsx(
+            'flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors',
+            location.pathname === '/settings'
+              ? 'bg-brand-50 text-brand-700'
+              : 'text-slate-600 hover:bg-slate-50'
+          )}
+        >
+          <Settings size={16} /> 设置
+        </button>
+      </div>
     </aside>
   )
 }
