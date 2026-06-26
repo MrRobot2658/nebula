@@ -216,6 +216,17 @@ class OfflineEvent(Base):
     created_at = Column(DateTime, default=_now)
 
 
+class Order(Base):
+    __tablename__ = "orders"
+
+    id = Column(Integer, primary_key=True)
+    customer_id = Column(Integer, ForeignKey("customers.id"), nullable=False)
+    amount = Column(Integer, nullable=False, default=0)  # 订单金额（元）
+    items = Column(JSON, nullable=False, default=list)  # [{name, qty, price}]
+    status = Column(String(16), nullable=False, default="paid")
+    created_at = Column(DateTime, default=_now)
+
+
 class Event(Base):
     __tablename__ = "events"
 

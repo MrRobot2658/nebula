@@ -1,14 +1,16 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ArrowLeft, Crown, TrendingUp } from 'lucide-react'
+import { ArrowLeft, Crown, Package, ShoppingBag, TrendingUp } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 import axios from 'axios'
 import {
   adjustMemberPoints,
   createMember,
+  createOrder,
   getCustomer,
+  getCustomerOrders,
   getMember,
 } from '../api/client'
-import type { CustomerDetail, MemberDetail } from '../api/types'
+import type { CustomerDetail, MemberDetail, Order } from '../api/types'
 import Card from '../components/Card'
 import Button from '../components/Button'
 import Badge from '../components/Badge'
@@ -31,12 +33,45 @@ function progressPct(points: number, toNext: number): number {
   return Math.min(100, Math.round((points / total) * 100))
 }
 
+function orderStatusInfo(status: string): { tone: 'green' | 'amber' | 'slate'; label: string } {
+  switch (status) {
+    case 'paid':
+      return { tone: 'green', label: '已支付' }
+    case 'pending':
+      return { tone: 'amber', label: '待支付' }
+    default:
+      return { tone: 'slate', label: status }
+  }
+}
+
+interface AggProduct {
+  name: string
+  qty: number
+  price: number
+}
+
+function aggregateProducts(orders: Order[]): AggProduct[] {
+  const map = new Map<string, AggProduct>()
+  for (const o of orders) {
+    for (const it of o.items ?? []) {
+      const cur = map.get(it.name)
+      if (cur) {
+        cur.qty += it.qty
+      } else {
+        map.set(it.name, { name: it.name, qty: it.qty, price: it.price })
+      }
+    }
+  }
+  return Array.from(map.values())
+}
+
 export default function MemberProfile() {
   const { customerId } = useParams<{ customerId: string }>()
   const id = Number(customerId)
 
   const [member, setMember] = useState<MemberDetail | null>(null)
   const [customer, setCustomer] = useState<CustomerDetail | null>(null)
+  const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
   const [notMember, setNotMember] = useState(false)
   const [error, setError] = useState(false)
@@ -45,6 +80,10 @@ export default function MemberProfile() {
   const [reason, setReason] = useState('活动奖励')
   const [adjusting, setAdjusting] = useState(false)
   const [enrolling, setEnrolling] = useState(false)
+
+  const [orderName, setOrderName] = useState('星云会员礼包')
+  const [orderAmount, setOrderAmount] = useState(199)
+  const [placing, setPlacing] = useState(false)
 
   const loadMember = useCallback(async () => {
     try {
@@ -61,6 +100,15 @@ export default function MemberProfile() {
     }
   }, [id])
 
+  const loadOrders = useCallback(async () => {
+    try {
+      const list = await getCustomerOrders(id)
+      setOrders(list)
+    } catch {
+      setOrders([])
+    }
+  }, [id])
+
   const load = useCallback(() => {
     setLoading(true)
     setError(false)
@@ -69,10 +117,11 @@ export default function MemberProfile() {
       getCustomer(id)
         .then(setCustomer)
         .catch(() => setCustomer(null)),
+      loadOrders(),
     ])
       .catch(() => setError(true))
       .finally(() => setLoading(false))
-  }, [id, loadMember])
+  }, [id, loadMember, loadOrders])
 
   useEffect(() => {
     if (!Number.isFinite(id)) {
@@ -101,6 +150,24 @@ export default function MemberProfile() {
       await loadMember()
     } finally {
       setEnrolling(false)
+    }
+  }
+
+  const placeOrder = async () => {
+    const amount = Number(orderAmount) || 0
+    const itemName = orderName.trim() || '商品'
+    setPlacing(true)
+    try {
+      await createOrder({
+        customer_id: id,
+        items: [{ name: itemName, qty: 1, price: amount }],
+        amount,
+        status: 'paid',
+      })
+      // 下单会通过 order_placed 增加积分，刷新订单与会员
+      await Promise.all([loadOrders(), loadMember()])
+    } finally {
+      setPlacing(false)
     }
   }
 
@@ -159,6 +226,9 @@ export default function MemberProfile() {
       </div>
     )
   }
+
+  const totalSpent = orders.reduce((sum, o) => sum + (o.amount || 0), 0)
+  const products = aggregateProducts(orders)
 
   return (
     <div data-testid="member-profile">
@@ -319,6 +389,108 @@ export default function MemberProfile() {
                       {t.delta}
                     </div>
                     <div className="text-xs text-slate-400">余 {t.balance_after}</div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </Card>
+      </div>
+
+      {/* 订单 & 购买商品 */}
+      <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card
+          title={
+            <span className="inline-flex items-center gap-1.5">
+              <ShoppingBag size={15} className="text-brand-600" /> 订单
+            </span>
+          }
+        >
+          <div className="flex items-center gap-5 rounded-xl bg-slate-50 px-4 py-3 text-sm">
+            <span className="text-slate-600">
+              订单数 <span className="font-semibold text-slate-800">{orders.length}</span>
+            </span>
+            <span className="text-slate-600">
+              累计消费 <span className="font-semibold text-slate-800">¥{totalSpent}</span>
+            </span>
+          </div>
+
+          {/* 模拟下单 */}
+          <div className="mt-3 flex items-center gap-2">
+            <input
+              className="form-input flex-1"
+              value={orderName}
+              onChange={(e) => setOrderName(e.target.value)}
+              placeholder="商品名称"
+            />
+            <input
+              type="number"
+              className="form-input w-24"
+              value={orderAmount}
+              onChange={(e) => setOrderAmount(Number(e.target.value))}
+              placeholder="金额"
+            />
+            <Button
+              data-testid="place-order-button"
+              onClick={placeOrder}
+              disabled={placing}
+            >
+              {placing ? '下单中…' : '模拟下单'}
+            </Button>
+          </div>
+
+          <div data-testid="member-orders" className="mt-3 space-y-2 max-h-80 overflow-y-auto">
+            {orders.length === 0 ? (
+              <div className="text-sm text-slate-400">暂无订单</div>
+            ) : (
+              orders.map((o) => {
+                const s = orderStatusInfo(o.status)
+                return (
+                  <div
+                    key={o.id}
+                    data-testid="order-row"
+                    className="flex items-center justify-between rounded-lg border border-slate-100 px-3 py-2 text-sm"
+                  >
+                    <div>
+                      <div className="font-medium text-slate-700">订单 #{o.id}</div>
+                      <div className="text-xs text-slate-400">
+                        {formatDateTime(o.created_at)}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Badge tone={s.tone}>{s.label}</Badge>
+                      <span className="font-semibold text-slate-800">¥{o.amount}</span>
+                    </div>
+                  </div>
+                )
+              })
+            )}
+          </div>
+        </Card>
+
+        <Card
+          title={
+            <span className="inline-flex items-center gap-1.5">
+              <Package size={15} className="text-brand-600" /> 购买商品
+            </span>
+          }
+        >
+          <div data-testid="member-products" className="space-y-2 max-h-96 overflow-y-auto">
+            {products.length === 0 ? (
+              <div className="text-sm text-slate-400">暂无购买商品</div>
+            ) : (
+              products.map((p) => (
+                <div
+                  key={p.name}
+                  data-testid="product-row"
+                  className="flex items-center justify-between rounded-lg border border-slate-100 px-3 py-2 text-sm"
+                >
+                  <div className="font-medium text-slate-700">{p.name}</div>
+                  <div className="flex items-center gap-3 text-slate-500">
+                    <span>
+                      ×<span className="font-semibold text-slate-700">{p.qty}</span>
+                    </span>
+                    <span className="font-semibold text-slate-800">¥{p.price}</span>
                   </div>
                 </div>
               ))

@@ -33,5 +33,16 @@ describe('会员页', () => {
     cy.get('[data-testid="member-profile"]', { timeout: 15000 }).should('be.visible')
     cy.get('[data-testid="member-profile-level"]').should('be.visible')
     cy.get('[data-testid="member-profile-transactions"]').should('exist')
+
+    // 订单与购买商品区块渲染
+    cy.get('[data-testid="member-orders"]', { timeout: 15000 }).should('exist')
+    cy.get('[data-testid="member-products"]').should('exist')
+
+    // 模拟下单后应出现订单行（无论该会员是否已有订单都能稳定通过）
+    cy.get('[data-testid="place-order-button"]').click()
+    cy.get('[data-testid="member-orders"]', { timeout: 15000 })
+      .find('[data-testid="order-row"]')
+      .its('length')
+      .should('be.gte', 1)
   })
 })

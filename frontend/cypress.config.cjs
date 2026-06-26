@@ -6,6 +6,9 @@ module.exports = defineConfig({
   defaultCommandTimeout: 10000,
   requestTimeout: 15000,
   video: false,
+  // Retry in run mode: a few specs touch external-latency paths (DeepSeek, async
+  // worker on a cold backend). A genuinely broken test still fails all attempts.
+  retries: { runMode: 2, openMode: 0 },
   env: {
     apiBase: 'http://localhost:8000',
   },

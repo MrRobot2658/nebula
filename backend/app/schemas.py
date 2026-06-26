@@ -316,6 +316,29 @@ class MemberDetailOut(MemberOut):
     transactions: list[PointTransactionOut] = []
 
 
+# ---------- Orders (订单 / 购买商品) ----------
+class OrderItem(BaseModel):
+    name: str
+    qty: int = 1
+    price: int = 0
+
+
+class OrderOut(ORMModel):
+    id: int
+    customer_id: int
+    amount: int
+    items: list[OrderItem]
+    status: str
+    created_at: datetime
+
+
+class OrderCreate(BaseModel):
+    customer_id: int
+    items: list[OrderItem] = []
+    amount: Optional[int] = None
+    status: str = "paid"
+
+
 # ---------- Webinars (线上直播) ----------
 class WebinarOut(ORMModel):
     id: int

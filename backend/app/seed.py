@@ -13,6 +13,7 @@ from .models import (
     Member,
     Message,
     OfflineEvent,
+    Order,
     Poster,
     PointTransaction,
     ScoreRule,
@@ -202,6 +203,24 @@ def seed_features() -> None:
                             customer_id=customer.id, delta=pts, reason="历史积分", balance_after=pts
                         )
                     )
+
+        if db.query(Order).count() == 0:
+            orders_by_name = {
+                "王五": [
+                    {"amount": 599, "items": [{"name": "夏日真丝连衣裙", "qty": 1, "price": 599}]},
+                    {"amount": 358, "items": [{"name": "轻奢小香风外套", "qty": 1, "price": 199}, {"name": "丝巾", "qty": 1, "price": 159}]},
+                ],
+                "李四": [
+                    {"amount": 199, "items": [{"name": "新品体验装", "qty": 1, "price": 199}]},
+                ],
+            }
+            for name, orders in orders_by_name.items():
+                customer = db.query(Customer).filter(Customer.name == name).first()
+                if customer:
+                    for o in orders:
+                        db.add(
+                            Order(customer_id=customer.id, amount=o["amount"], items=o["items"], status="paid")
+                        )
 
         if db.query(Webinar).count() == 0:
             a_form = db.query(Form).first()

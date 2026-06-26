@@ -18,6 +18,8 @@ import type {
   Message,
   OfflineEvent,
   OfflineEventDetail,
+  Order,
+  OrderItem,
   Poster,
   ScoreRule,
   Template,
@@ -397,5 +399,21 @@ export async function checkinOfflineEvent(
   body: { customer_id?: number } = {}
 ): Promise<OfflineEvent> {
   const { data } = await api.post<OfflineEvent>(`/offline-events/${id}/checkin`, body)
+  return data
+}
+
+// ---- Orders ----
+export async function getCustomerOrders(customerId: number): Promise<Order[]> {
+  const { data } = await api.get<Order[]>(`/customers/${customerId}/orders`)
+  return data
+}
+
+export async function createOrder(body: {
+  customer_id: number
+  items: OrderItem[]
+  amount?: number
+  status?: string
+}): Promise<Order> {
+  const { data } = await api.post<Order>('/orders', body)
   return data
 }

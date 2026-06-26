@@ -109,6 +109,27 @@ class FeaturesTestCase(unittest.TestCase):
         self.assertEqual(detail["next_level"], "金卡会员")
         self.assertGreaterEqual(len(detail["transactions"]), 1)
 
+    # ---- orders: create order, list, member points awarded ----
+    def test_orders_and_member_points(self):
+        c = self.client.post("/api/customers", json={"name": "下单客户A"}).json()
+        self.client.post("/api/members", json={"customer_id": c["id"]})
+
+        r = self.client.post(
+            "/api/orders",
+            json={"customer_id": c["id"], "items": [{"name": "商品X", "qty": 2, "price": 100}]},
+        )
+        self.assertEqual(r.status_code, 201)
+        self.assertEqual(r.json()["amount"], 200)  # 2 * 100
+        self.assertEqual(r.json()["items"][0]["name"], "商品X")
+
+        orders = self.client.get(f"/api/customers/{c['id']}/orders").json()
+        self.assertEqual(len(orders), 1)
+
+        # order_placed awards points (amount 1:1) to the member
+        member = self.client.get(f"/api/members/{c['id']}").json()
+        self.assertEqual(member["points"], 200)
+        self.assertEqual(member["level"], "银卡会员")  # 200 >= 100
+
     # ---- members: search by name ----
     def test_members_search(self):
         c = self.client.post("/api/customers", json={"name": "搜索会员小张"}).json()

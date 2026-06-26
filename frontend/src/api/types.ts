@@ -207,6 +207,22 @@ export interface MemberDetail extends Member {
   transactions: PointTransaction[]
 }
 
+// ---- Orders ----
+export interface OrderItem {
+  name: string
+  qty: number
+  price: number
+}
+
+export interface Order {
+  id: number
+  customer_id: number
+  amount: number
+  items: OrderItem[]
+  status: string
+  created_at: string
+}
+
 // ---- Webinars ----
 export interface Webinar {
   id: number

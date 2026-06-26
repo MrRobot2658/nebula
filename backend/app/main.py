@@ -18,6 +18,7 @@ from .routers import (
     members,
     messages,
     offline,
+    orders,
     posters,
     public,
     scoring,
@@ -44,6 +45,7 @@ tags_metadata = [
     {"name": "public", "description": "对外可访问的公开落地页 `/l/{slug}`（含可提交的线索表单）。"},
     {"name": "webinars", "description": "线上直播：直播管理，可在直播中向观众发送表单。"},
     {"name": "offline", "description": "线下会议：通过落地页扫码报名、现场签到。"},
+    {"name": "orders", "description": "订单：客户订单与购买商品；下单为会员累计积分。"},
 ]
 
 app = FastAPI(
@@ -84,6 +86,7 @@ app.include_router(posters.router, prefix=API)
 app.include_router(members.router, prefix=API)
 app.include_router(webinars.router, prefix=API)
 app.include_router(offline.router, prefix=API)
+app.include_router(orders.router, prefix=API)
 app.include_router(public.router)  # public landing pages at /l/{slug} (no /api prefix)
 
 
