@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Eye, Plus } from 'lucide-react'
+import { Copy, ExternalLink, Eye, Plus } from 'lucide-react'
 import {
   createLandingPage,
   getForm,
@@ -27,6 +27,7 @@ export default function LandingPages() {
   const [open, setOpen] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [recording, setRecording] = useState(false)
+  const [copiedSlug, setCopiedSlug] = useState<string | null>(null)
   const [form, setForm] = useState({ title: '', headline: '', body: '', slug: '' })
 
   const load = () => {
@@ -86,6 +87,19 @@ export default function LandingPages() {
     }
   }
 
+  const publicUrl = (slug: string) => `${window.location.origin}/l/${slug}`
+
+  const copyPublicLink = async (slug: string) => {
+    const url = publicUrl(slug)
+    try {
+      await navigator.clipboard?.writeText(url)
+      setCopiedSlug(slug)
+      window.setTimeout(() => setCopiedSlug((cur) => (cur === slug ? null : cur)), 2000)
+    } catch {
+      /* clipboard 不可用时静默忽略 */
+    }
+  }
+
   return (
     <div>
       <PageHeader
@@ -126,6 +140,36 @@ export default function LandingPages() {
                 <span data-testid="landing-views" className="font-semibold text-slate-700">
                   {p.views}
                 </span>
+              </div>
+
+              <div className="mt-3 rounded-lg bg-slate-50 px-3 py-2">
+                <div className="text-[11px] font-medium text-slate-400">公开链接</div>
+                <div className="mt-0.5 truncate font-mono text-xs text-slate-600">
+                  /l/{p.slug}
+                </div>
+                <div className="mt-2 flex items-center gap-2">
+                  <a
+                    href={`/l/${p.slug}`}
+                    target="_blank"
+                    rel="noopener"
+                    data-testid="open-public-button"
+                    onClick={(e) => e.stopPropagation()}
+                    className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                  >
+                    <ExternalLink size={12} /> 打开公开页
+                  </a>
+                  <button
+                    type="button"
+                    data-testid="copy-public-link"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      copyPublicLink(p.slug)
+                    }}
+                    className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                  >
+                    <Copy size={12} /> {copiedSlug === p.slug ? '已复制' : '复制链接'}
+                  </button>
+                </div>
               </div>
 
               <div className="mt-auto pt-4 flex items-center justify-between gap-2">
@@ -205,6 +249,31 @@ export default function LandingPages() {
                 >
                   <Eye size={14} /> 记录访问
                 </Button>
+              </div>
+            </div>
+            <div className="mt-4 rounded-lg bg-slate-50 px-3 py-2.5">
+              <div className="text-[11px] font-medium text-slate-400">公开链接</div>
+              <div className="mt-0.5 break-all font-mono text-xs text-slate-600">
+                {publicUrl(selected.slug)}
+              </div>
+              <div className="mt-2 flex items-center gap-2">
+                <a
+                  href={`/l/${selected.slug}`}
+                  target="_blank"
+                  rel="noopener"
+                  data-testid="open-public-button"
+                  className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                >
+                  <ExternalLink size={12} /> 打开公开页
+                </a>
+                <button
+                  type="button"
+                  data-testid="copy-public-link"
+                  onClick={() => copyPublicLink(selected.slug)}
+                  className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                >
+                  <Copy size={12} /> {copiedSlug === selected.slug ? '已复制' : '复制链接'}
+                </button>
               </div>
             </div>
             <div className="mt-2 text-xs text-slate-400">

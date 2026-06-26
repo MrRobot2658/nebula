@@ -61,6 +61,30 @@ class FeaturesTestCase(unittest.TestCase):
         self.assertEqual(r.json()["views"], before + 1)
         self.assertIn("visit_recorded", {e["type"] for e in self.client.get("/api/events?limit=80").json()})
 
+    # ---- public landing page (real URL) ----
+    def test_public_landing_url(self):
+        page = self.client.post(
+            "/api/landing-pages",
+            json={"title": "公开页单测", "headline": "欢迎体验新品", "body": "正文内容"},
+        ).json()
+        before = page["views"]
+
+        r = self.client.get(f"/l/{page['slug']}")
+        self.assertEqual(r.status_code, 200)
+        self.assertIn("text/html", r.headers["content-type"])
+        self.assertIn("欢迎体验新品", r.text)
+
+        # visiting the public URL records a view
+        self.assertGreater(self.client.get(f"/api/landing-pages/{page['id']}").json()["views"], before)
+
+        self.assertEqual(self.client.get("/l/this-slug-does-not-exist").status_code, 404)
+
+    def test_public_landing_renders_form(self):
+        # seeded summer-launch has a form attached -> page should render a lead form
+        r = self.client.get("/l/summer-launch")
+        self.assertEqual(r.status_code, 200)
+        self.assertIn("lead-form", r.text)
+
     # ---- posters ----
     def test_posters(self):
         self.assertGreaterEqual(len(self.client.get("/api/posters").json()), 2)

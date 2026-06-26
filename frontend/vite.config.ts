@@ -11,6 +11,11 @@ export default defineConfig({
         target: process.env.VITE_API_PROXY || 'http://localhost:8000',
         changeOrigin: true,
       },
+      // Regex key so it matches ONLY /l/<slug>, not app routes like /landing-pages.
+      '^/l/': {
+        target: process.env.VITE_API_PROXY || 'http://localhost:8000',
+        changeOrigin: true,
+      },
     },
   },
 })

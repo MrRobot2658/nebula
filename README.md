@@ -52,6 +52,7 @@ docker compose up -d --build
 | 后端 API | http://localhost:8000 |
 | Swagger UI | http://localhost:8000/docs |
 | ReDoc | http://localhost:8000/redoc |
+| 公开落地页（示例） | http://localhost:8000/l/summer-launch |
 | MySQL | localhost:3306（nebula / nebula） |
 | Redis | localhost:6379 |
 

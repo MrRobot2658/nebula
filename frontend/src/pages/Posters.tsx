@@ -25,6 +25,14 @@ function gradientFor(template: string): string {
   return TEMPLATE_GRADIENTS[template] ?? TEMPLATE_GRADIENTS.aurora
 }
 
+function resolveQrData(poster: { qr_target?: string | null; name: string }): string {
+  const target = poster.qr_target?.trim()
+  if (!target) return poster.name
+  if (/^https?:\/\//i.test(target)) return target
+  // 裸 slug → 拼接为真实公开落地页地址
+  return `${window.location.origin}/l/${target}`
+}
+
 function qrUrl(target: string): string {
   return `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(
     target
@@ -130,7 +138,7 @@ export default function Posters() {
                     )}
                   </div>
                   <img
-                    src={qrUrl(p.qr_target || p.name)}
+                    src={qrUrl(resolveQrData(p))}
                     alt="qr"
                     className="h-16 w-16 rounded-lg bg-white p-1"
                     loading="lazy"
