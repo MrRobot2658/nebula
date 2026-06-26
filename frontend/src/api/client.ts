@@ -5,6 +5,7 @@ import type {
   AutomationRun,
   Campaign,
   Channel,
+  ChannelDetail,
   Customer,
   CustomerDetail,
   DashboardStats,
@@ -49,6 +50,22 @@ export async function patchChannel(
   body: { enabled?: boolean; config?: Record<string, unknown> }
 ): Promise<Channel> {
   const { data } = await api.patch<Channel>(`/channels/${id}`, body)
+  return data
+}
+
+export async function getChannel(key: string): Promise<ChannelDetail> {
+  const { data } = await api.get<ChannelDetail>(`/channels/${key}`)
+  return data
+}
+
+export async function simulateChannelEvent(
+  key: string,
+  body: { event_key: string; customer_id?: number; content?: string }
+): Promise<{ event: Event; message?: Message | null }> {
+  const { data } = await api.post<{ event: Event; message?: Message | null }>(
+    `/channels/${key}/simulate`,
+    body
+  )
   return data
 }
 

@@ -5,6 +5,7 @@ const titles: { match: (p: string) => boolean; title: string }[] = [
   { match: (p) => p === '/', title: '仪表盘' },
   { match: (p) => p.startsWith('/customers'), title: '客户管理' },
   { match: (p) => p.startsWith('/inbox'), title: '对话收件箱' },
+  { match: (p) => /^\/channels\/.+/.test(p), title: '渠道详情' },
   { match: (p) => p.startsWith('/channels'), title: '渠道接入' },
   { match: (p) => p.startsWith('/templates'), title: '模板库' },
   { match: (p) => p.startsWith('/campaigns'), title: '营销活动' },

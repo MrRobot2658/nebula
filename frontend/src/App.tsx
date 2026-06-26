@@ -5,6 +5,7 @@ import Customers from './pages/Customers'
 import CustomerDetail from './pages/CustomerDetail'
 import Inbox from './pages/Inbox'
 import Channels from './pages/Channels'
+import ChannelDetail from './pages/ChannelDetail'
 import Templates from './pages/Templates'
 import Campaigns from './pages/Campaigns'
 import Automations from './pages/Automations'
@@ -28,6 +29,7 @@ export default function App() {
           <Route path="/customers/:id" element={<CustomerDetail />} />
           <Route path="/inbox" element={<Inbox />} />
           <Route path="/channels" element={<Channels />} />
+          <Route path="/channels/:key" element={<ChannelDetail />} />
           <Route path="/templates" element={<Templates />} />
           <Route path="/campaigns" element={<Campaigns />} />
           <Route path="/automations" element={<Automations />} />

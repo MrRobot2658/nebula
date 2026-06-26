@@ -24,6 +24,44 @@ class ChannelPatch(BaseModel):
     config: Optional[dict] = None
 
 
+class ChannelEventOption(BaseModel):
+    key: str
+    label: str
+
+
+class ChannelConfigField(BaseModel):
+    key: str
+    label: str
+    type: str = "text"
+    required: bool = False
+    placeholder: Optional[str] = None
+
+
+class ChannelMessageStats(BaseModel):
+    messages_in: int = 0
+    messages_out: int = 0
+
+
+class ChannelDetailOut(BaseModel):
+    channel: ChannelOut
+    capabilities: list[str] = []
+    events: list[ChannelEventOption] = []
+    config_schema: list[ChannelConfigField] = []
+    recent_events: list["EventOut"] = []
+    stats: ChannelMessageStats
+
+
+class ChannelSimulateRequest(BaseModel):
+    event_key: str
+    customer_id: Optional[int] = None
+    content: Optional[str] = None
+
+
+class ChannelSimulateResponse(BaseModel):
+    event: "EventOut"
+    message: Optional["MessageOut"] = None
+
+
 # ---------- Customers ----------
 class CustomerOut(ORMModel):
     id: int
@@ -434,3 +472,8 @@ class DashboardStats(BaseModel):
     automations_enabled: int
     messages_trend: list[TrendPoint]
     recent_events: list[EventOut]
+
+
+# Resolve forward references for channel schemas declared before EventOut/MessageOut.
+ChannelDetailOut.model_rebuild()
+ChannelSimulateResponse.model_rebuild()

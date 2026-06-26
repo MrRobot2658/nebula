@@ -24,6 +24,33 @@ export interface Channel {
   created_at: string
 }
 
+export interface ChannelEventOption {
+  key: string
+  label: string
+}
+
+export interface ChannelConfigField {
+  key: string
+  label: string
+  type: string
+  required: boolean
+  placeholder?: string | null
+}
+
+export interface ChannelMessageStats {
+  messages_in: number
+  messages_out: number
+}
+
+export interface ChannelDetail {
+  channel: Channel
+  capabilities: string[]
+  events: ChannelEventOption[]
+  config_schema: ChannelConfigField[]
+  recent_events: Event[]
+  stats: ChannelMessageStats
+}
+
 export interface Customer {
   id: number
   name: string

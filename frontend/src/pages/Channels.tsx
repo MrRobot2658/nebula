@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Radio } from 'lucide-react'
 import { getChannels, patchChannel } from '../api/client'
 import type { Channel } from '../api/types'
@@ -11,6 +12,7 @@ export default function Channels() {
   const [channels, setChannels] = useState<Channel[]>([])
   const [loading, setLoading] = useState(true)
   const [pending, setPending] = useState<number | null>(null)
+  const navigate = useNavigate()
 
   useEffect(() => {
     getChannels()
@@ -19,7 +21,8 @@ export default function Channels() {
       .finally(() => setLoading(false))
   }, [])
 
-  const toggle = async (ch: Channel) => {
+  const toggle = async (ch: Channel, e: React.MouseEvent) => {
+    e.stopPropagation()
     setPending(ch.id)
     try {
       const updated = await patchChannel(ch.id, { enabled: !ch.enabled })
@@ -42,7 +45,9 @@ export default function Channels() {
           {channels.map((ch) => (
             <div
               key={ch.id}
-              className="rounded-2xl bg-white border border-slate-200/70 shadow-card p-5"
+              data-testid="channel-card"
+              onClick={() => navigate(`/channels/${ch.key}`)}
+              className="cursor-pointer rounded-2xl bg-white border border-slate-200/70 shadow-card p-5 transition hover:shadow-md hover:border-brand-200"
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
@@ -61,7 +66,7 @@ export default function Channels() {
                 <button
                   data-testid="channel-toggle"
                   data-enabled={ch.enabled}
-                  onClick={() => toggle(ch)}
+                  onClick={(e) => toggle(ch, e)}
                   disabled={pending === ch.id}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
                     ch.enabled ? 'bg-brand-600' : 'bg-slate-200'
