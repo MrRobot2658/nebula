@@ -72,7 +72,7 @@ def analyze_message(content: str, customer: Optional[object] = None) -> dict:
         "Content-Type": "application/json",
     }
     try:
-        resp = requests.post(url, json=payload, headers=headers, timeout=20)
+        resp = requests.post(url, json=payload, headers=headers, timeout=8)
         resp.raise_for_status()
         data = resp.json()
         raw = data["choices"][0]["message"]["content"]

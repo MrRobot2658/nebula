@@ -201,6 +201,47 @@ class FeaturesTestCase(unittest.TestCase):
         self.assertEqual(r.json()["stats"]["checkins"], 1)
 
 
+    # ---- flows: canvas save, run (local fallback), abtest results ----
+    def test_flow_create_save_run(self):
+        self.assertGreaterEqual(len(self.client.get("/api/flows").json()), 1)
+
+        flow = self.client.post("/api/flows", json={"name": "单测流程"}).json()
+        fid = flow["id"]
+
+        # save a small graph: trigger -> abtest(A/B) -> two actions -> end
+        nodes = [
+            {"id": "t", "type": "trigger", "position": {"x": 0, "y": 0}, "data": {"event": "message_received"}},
+            {"id": "ab", "type": "abtest", "position": {"x": 0, "y": 1}, "data": {"variants": [{"key": "A", "weight": 50}, {"key": "B", "weight": 50}]}},
+            {"id": "a1", "type": "action", "position": {"x": 0, "y": 2}, "data": {"action": "adjust_score", "points": 5}},
+            {"id": "a2", "type": "action", "position": {"x": 1, "y": 2}, "data": {"action": "add_tag", "tag": "B组"}},
+            {"id": "e", "type": "end", "position": {"x": 0, "y": 3}, "data": {}},
+        ]
+        edges = [
+            {"id": "e1", "source": "t", "target": "ab", "sourceHandle": None, "label": None},
+            {"id": "e2", "source": "ab", "target": "a1", "sourceHandle": "A", "label": "A"},
+            {"id": "e3", "source": "ab", "target": "a2", "sourceHandle": "B", "label": "B"},
+            {"id": "e4", "source": "a1", "target": "e", "sourceHandle": None, "label": None},
+            {"id": "e5", "source": "a2", "target": "e", "sourceHandle": None, "label": None},
+        ]
+        saved = self.client.patch(f"/api/flows/{fid}", json={"nodes": nodes, "edges": edges, "status": "active"}).json()
+        self.assertEqual(len(saved["nodes"]), 5)
+
+        # run (Airflow unreachable in tests -> local executor, log populated)
+        run = self.client.post(f"/api/flows/{fid}/run", json={}).json()
+        self.assertEqual(run["executor"], "local")
+        self.assertEqual(run["status"], "success")
+        self.assertGreaterEqual(len(run["log"]), 3)  # trigger + abtest + action(+end)
+        self.assertTrue(any(item["type"] == "abtest" for item in run["log"]))
+
+        # run a few more for AB distribution, then results aggregate
+        for _ in range(5):
+            self.client.post(f"/api/flows/{fid}/run", json={})
+        results = self.client.get(f"/api/flows/{fid}/abtest-results").json()
+        self.assertGreaterEqual(sum(r["count"] for r in results), 6)
+
+        self.assertGreaterEqual(len(self.client.get(f"/api/flows/{fid}/runs").json()), 6)
+
+
 class MembershipUtilTest(unittest.TestCase):
     def test_level_for(self):
         self.assertEqual(level_for(0), "普通会员")

@@ -19,6 +19,8 @@ const titles: { match: (p: string) => boolean; title: string }[] = [
   { match: (p) => p.startsWith('/members'), title: '会员' },
   { match: (p) => p.startsWith('/webinars'), title: '线上直播' },
   { match: (p) => p.startsWith('/offline-events'), title: '线下会议' },
+  { match: (p) => /^\/flows\/\d+/.test(p), title: '自动化画布编辑器' },
+  { match: (p) => p.startsWith('/flows'), title: '自动化画布' },
 ]
 
 export default function Topbar() {

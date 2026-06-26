@@ -354,6 +354,70 @@ class MemberDetailOut(MemberOut):
     transactions: list[PointTransactionOut] = []
 
 
+# ---------- Flows (自动化画布) ----------
+class FlowNode(BaseModel):
+    id: str
+    type: str
+    position: dict = {}
+    data: dict = {}
+
+
+class FlowEdge(BaseModel):
+    id: str
+    source: str
+    target: str
+    sourceHandle: Optional[str] = None
+    label: Optional[str] = None
+
+
+class FlowOut(ORMModel):
+    id: int
+    name: str
+    status: str
+    nodes: list[FlowNode]
+    edges: list[FlowEdge]
+    created_at: datetime
+    updated_at: datetime
+
+
+class FlowCreate(BaseModel):
+    name: str
+    nodes: list[FlowNode] = []
+    edges: list[FlowEdge] = []
+
+
+class FlowPatch(BaseModel):
+    name: Optional[str] = None
+    status: Optional[str] = None
+    nodes: Optional[list[FlowNode]] = None
+    edges: Optional[list[FlowEdge]] = None
+
+
+class FlowRunLogItem(BaseModel):
+    node_id: str
+    type: str
+    detail: str
+
+
+class FlowRunOut(ORMModel):
+    id: int
+    flow_id: int
+    executor: str
+    status: str
+    dag_run_id: Optional[str] = None
+    log: list[FlowRunLogItem]
+    created_at: datetime
+
+
+class FlowRunRequest(BaseModel):
+    customer_id: Optional[int] = None
+
+
+class AbResult(BaseModel):
+    variant: str
+    count: int
+
+
 # ---------- Orders (订单 / 购买商品) ----------
 class OrderItem(BaseModel):
     name: str

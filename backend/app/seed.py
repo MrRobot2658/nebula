@@ -8,6 +8,7 @@ from .models import (
     Campaign,
     Channel,
     Customer,
+    Flow,
     Form,
     LandingPage,
     Member,
@@ -221,6 +222,30 @@ def seed_features() -> None:
                         db.add(
                             Order(customer_id=customer.id, amount=o["amount"], items=o["items"], status="paid")
                         )
+
+        if db.query(Flow).count() == 0:
+            db.add(
+                Flow(
+                    name="新客欢迎 + AB 测试",
+                    status="active",
+                    nodes=[
+                        {"id": "n1", "type": "trigger", "position": {"x": 80, "y": 40}, "data": {"event": "message_received"}},
+                        {"id": "n2", "type": "condition", "position": {"x": 80, "y": 160}, "data": {"field": "score", "op": ">=", "value": "60"}},
+                        {"id": "n3", "type": "abtest", "position": {"x": 80, "y": 280}, "data": {"variants": [{"key": "A", "weight": 50}, {"key": "B", "weight": 50}]}},
+                        {"id": "n4", "type": "action", "position": {"x": -80, "y": 400}, "data": {"action": "send_template", "template": "新客欢迎"}},
+                        {"id": "n5", "type": "action", "position": {"x": 240, "y": 400}, "data": {"action": "adjust_score", "points": 5}},
+                        {"id": "n6", "type": "end", "position": {"x": 80, "y": 520}, "data": {}},
+                    ],
+                    edges=[
+                        {"id": "e1", "source": "n1", "target": "n2", "sourceHandle": None, "label": None},
+                        {"id": "e2", "source": "n2", "target": "n3", "sourceHandle": "true", "label": "是"},
+                        {"id": "e3", "source": "n3", "target": "n4", "sourceHandle": "A", "label": "A"},
+                        {"id": "e4", "source": "n3", "target": "n5", "sourceHandle": "B", "label": "B"},
+                        {"id": "e5", "source": "n4", "target": "n6", "sourceHandle": None, "label": None},
+                        {"id": "e6", "source": "n5", "target": "n6", "sourceHandle": None, "label": None},
+                    ],
+                )
+            )
 
         if db.query(Webinar).count() == 0:
             a_form = db.query(Form).first()

@@ -4,6 +4,7 @@ import {
   CalendarDays,
   Crown,
   FileText,
+  GitBranch,
   Image,
   LayoutDashboard,
   LayoutTemplate,
@@ -75,6 +76,7 @@ const groups: NavGroup[] = [
     items: [
       { to: '/webinars', label: '线上直播', icon: Video },
       { to: '/offline-events', label: '线下会议', icon: CalendarDays },
+      { to: '/flows', label: '自动化画布', icon: GitBranch },
     ],
   },
   {

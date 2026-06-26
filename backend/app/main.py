@@ -13,6 +13,7 @@ from .routers import (
     customers,
     dashboard,
     events,
+    flows,
     forms,
     landing,
     members,
@@ -46,6 +47,7 @@ tags_metadata = [
     {"name": "webinars", "description": "线上直播：直播管理，可在直播中向观众发送表单。"},
     {"name": "offline", "description": "线下会议：通过落地页扫码报名、现场签到。"},
     {"name": "orders", "description": "订单：客户订单与购买商品；下单为会员累计积分。"},
+    {"name": "flows", "description": "自动化画布：拖拽式流程编排，含 AB 测试，经 Airflow 执行（失败回退本地）。"},
 ]
 
 app = FastAPI(
@@ -87,6 +89,7 @@ app.include_router(members.router, prefix=API)
 app.include_router(webinars.router, prefix=API)
 app.include_router(offline.router, prefix=API)
 app.include_router(orders.router, prefix=API)
+app.include_router(flows.router, prefix=API)
 app.include_router(public.router)  # public landing pages at /l/{slug} (no /api prefix)
 
 

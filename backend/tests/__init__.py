@@ -8,6 +8,7 @@ import os
 
 os.environ["DATABASE_URL"] = "sqlite://"
 os.environ["DEEPSEEK_API_KEY"] = ""  # force deterministic fallback, no network
+os.environ["AIRFLOW_BASE_URL"] = ""  # flows use the local executor in tests
 os.environ.setdefault("CELERY_BROKER_URL", "memory://")
 os.environ.setdefault("CELERY_RESULT_BACKEND", "cache+memory://")
 

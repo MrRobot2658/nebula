@@ -1,5 +1,6 @@
 import axios from 'axios'
 import type {
+  AbResult,
   AiSuggestResponse,
   Automation,
   AutomationRun,
@@ -10,6 +11,10 @@ import type {
   CustomerDetail,
   DashboardStats,
   Event,
+  Flow,
+  FlowEdge,
+  FlowNode,
+  FlowRun,
   Form,
   FormDetail,
   FormSubmission,
@@ -432,5 +437,51 @@ export async function createOrder(body: {
   status?: string
 }): Promise<Order> {
   const { data } = await api.post<Order>('/orders', body)
+  return data
+}
+
+// ---- Flows (automation canvas) ----
+export async function getFlows(): Promise<Flow[]> {
+  const { data } = await api.get<Flow[]>('/flows')
+  return data
+}
+
+export async function createFlow(body: {
+  name: string
+  nodes?: FlowNode[]
+  edges?: FlowEdge[]
+}): Promise<Flow> {
+  const { data } = await api.post<Flow>('/flows', body)
+  return data
+}
+
+export async function getFlow(id: number): Promise<Flow> {
+  const { data } = await api.get<Flow>(`/flows/${id}`)
+  return data
+}
+
+export async function saveFlow(
+  id: number,
+  body: { name?: string; status?: string; nodes: FlowNode[]; edges: FlowEdge[] }
+): Promise<Flow> {
+  const { data } = await api.patch<Flow>(`/flows/${id}`, body)
+  return data
+}
+
+export async function runFlow(
+  id: number,
+  body: { customer_id?: number } = {}
+): Promise<FlowRun> {
+  const { data } = await api.post<FlowRun>(`/flows/${id}/run`, body)
+  return data
+}
+
+export async function getFlowRuns(id: number): Promise<FlowRun[]> {
+  const { data } = await api.get<FlowRun[]>(`/flows/${id}/runs`)
+  return data
+}
+
+export async function getAbResults(id: number): Promise<AbResult[]> {
+  const { data } = await api.get<AbResult[]>(`/flows/${id}/abtest-results`)
   return data
 }

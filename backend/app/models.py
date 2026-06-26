@@ -216,6 +216,40 @@ class OfflineEvent(Base):
     created_at = Column(DateTime, default=_now)
 
 
+class Flow(Base):
+    __tablename__ = "flows"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(128), nullable=False)
+    status = Column(String(16), nullable=False, default="draft")  # draft / active
+    nodes = Column(JSON, nullable=False, default=list)  # [{id,type,position,data}]
+    edges = Column(JSON, nullable=False, default=list)  # [{id,source,target,sourceHandle,label}]
+    created_at = Column(DateTime, default=_now)
+    updated_at = Column(DateTime, default=_now, onupdate=_now)
+
+
+class FlowRun(Base):
+    __tablename__ = "flow_runs"
+
+    id = Column(Integer, primary_key=True)
+    flow_id = Column(Integer, ForeignKey("flows.id"), nullable=False)
+    executor = Column(String(16), nullable=False, default="local")  # local / airflow
+    status = Column(String(16), nullable=False, default="success")  # running/success/failed
+    dag_run_id = Column(String(128), nullable=True)
+    log = Column(JSON, nullable=False, default=list)  # [{node_id,type,detail}]
+    created_at = Column(DateTime, default=_now)
+
+
+class AbAssignment(Base):
+    __tablename__ = "ab_assignments"
+
+    id = Column(Integer, primary_key=True)
+    flow_id = Column(Integer, ForeignKey("flows.id"), nullable=False)
+    node_id = Column(String(64), nullable=False)
+    variant = Column(String(64), nullable=False)
+    created_at = Column(DateTime, default=_now)
+
+
 class Order(Base):
     __tablename__ = "orders"
 

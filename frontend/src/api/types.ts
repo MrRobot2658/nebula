@@ -287,3 +287,60 @@ export interface OfflineEventDetail extends OfflineEvent {
   poster?: Poster | null
   registrations: number
 }
+
+// ---- Flows (automation canvas) ----
+export type FlowNodeType =
+  | 'trigger'
+  | 'condition'
+  | 'action'
+  | 'wait'
+  | 'abtest'
+  | 'branch'
+  | 'end'
+
+export interface FlowNode {
+  id: string
+  type: FlowNodeType
+  position: { x: number; y: number }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  data: Record<string, any>
+}
+
+export interface FlowEdge {
+  id: string
+  source: string
+  target: string
+  sourceHandle?: string | null
+  label?: string
+}
+
+export interface Flow {
+  id: number
+  name: string
+  status: string
+  nodes: FlowNode[]
+  edges: FlowEdge[]
+  created_at: string
+  updated_at: string
+}
+
+export interface FlowRunLogItem {
+  node_id: string
+  type: string
+  detail: string
+}
+
+export interface FlowRun {
+  id: number
+  flow_id: number
+  executor: string
+  status: string
+  dag_run_id?: string | null
+  log: FlowRunLogItem[]
+  created_at: string
+}
+
+export interface AbResult {
+  variant: string
+  count: number
+}

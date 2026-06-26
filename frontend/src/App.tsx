@@ -18,6 +18,8 @@ import Members from './pages/Members'
 import MemberProfile from './pages/MemberProfile'
 import Webinars from './pages/Webinars'
 import OfflineEvents from './pages/OfflineEvents'
+import Flows from './pages/Flows'
+import FlowCanvas from './pages/FlowCanvas'
 
 export default function App() {
   return (
@@ -42,6 +44,8 @@ export default function App() {
           <Route path="/members/:customerId" element={<MemberProfile />} />
           <Route path="/webinars" element={<Webinars />} />
           <Route path="/offline-events" element={<OfflineEvents />} />
+          <Route path="/flows" element={<Flows />} />
+          <Route path="/flows/:id" element={<FlowCanvas />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

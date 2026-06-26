@@ -81,5 +81,26 @@ services:
       backend:
         condition: service_started
 
+  # Airflow runs Nebula automation flows. The backend triggers the nebula_flow_runner
+  # DAG via REST; if Airflow is unreachable it falls back to local execution, so the
+  # app works even before Airflow finishes booting.
+  airflow:
+    image: apache/airflow:2.10.3
+    environment:
+      AIRFLOW__CORE__EXECUTOR: SequentialExecutor
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "false"
+      AIRFLOW__API__AUTH_BACKENDS: airflow.api.auth.backend.basic_auth
+      AIRFLOW__WEBSERVER__SECRET_KEY: nebula-secret
+      NEBULA_API_BASE: http://backend:8000
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+    ports:
+      - "8090:8080"
+    command: >
+      bash -c "airflow db migrate &&
+      airflow users create -u admin -p admin -f Neb -l Ula -r Admin -e admin@example.com || true &&
+      (airflow scheduler & exec airflow webserver)"
+
 volumes:
   dbdata:

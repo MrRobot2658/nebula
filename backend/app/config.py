@@ -14,6 +14,11 @@ class Settings:
     # Score threshold that marks a customer as high-intent
     SCORE_THRESHOLD: int = int(os.getenv("SCORE_THRESHOLD", "80"))
 
+    # Airflow (automation execution engine)
+    AIRFLOW_BASE_URL: str = os.getenv("AIRFLOW_BASE_URL", "http://airflow:8080")
+    AIRFLOW_USERNAME: str = os.getenv("AIRFLOW_USERNAME", "admin")
+    AIRFLOW_PASSWORD: str = os.getenv("AIRFLOW_PASSWORD", "admin")
+
     # DeepSeek LLM (OpenAI-compatible)
     DEEPSEEK_API_KEY: str = os.getenv("DEEPSEEK_API_KEY", "")
     DEEPSEEK_API_BASE: str = os.getenv("DEEPSEEK_API_BASE", "https://api.deepseek.com")
