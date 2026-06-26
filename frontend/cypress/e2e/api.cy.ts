@@ -87,12 +87,25 @@ describe('Nebula 后端 API e2e', () => {
   })
 
   it('GET /api/events → 包含 message_received 与 ai.suggestion', () => {
-    cy.request(`${apiBase}/api/events?limit=50`).then((res) => {
-      expect(res.status).to.eq(200)
-      const types = (res.body as EventItem[]).map((e) => e.type)
-      expect(types).to.include('message_received')
-      expect(types).to.include('ai.suggestion')
-    })
+    // ai.suggestion 事件在 DeepSeek 调用后异步写入，轮询直至两类事件都出现
+    const pollEvents = (attempt: number): void => {
+      cy.request(`${apiBase}/api/events?limit=80`).then((res) => {
+        expect(res.status).to.eq(200)
+        const types = (res.body as EventItem[]).map((e) => e.type)
+        const hasReceived = types.includes('message_received')
+        const hasSuggestion = types.includes('ai.suggestion')
+
+        if ((hasReceived && hasSuggestion) || attempt >= 12) {
+          expect(types, '包含 message_received').to.include('message_received')
+          expect(types, '包含 ai.suggestion').to.include('ai.suggestion')
+          return
+        }
+        cy.wait(1000)
+        pollEvents(attempt + 1)
+      })
+    }
+
+    pollEvents(1)
   })
 
   it('POST /api/ai/suggest → 返回非空建议', () => {

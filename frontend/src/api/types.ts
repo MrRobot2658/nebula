@@ -127,3 +127,82 @@ export interface AiSuggestResponse {
   source: string
   error?: string | null
 }
+
+// ---- Forms ----
+export interface FormField {
+  key: string
+  label: string
+  type: string
+  required: boolean
+}
+
+export interface Form {
+  id: number
+  name: string
+  channel_key?: string | null
+  fields: FormField[]
+  created_at: string
+}
+
+export interface FormSubmission {
+  id: number
+  form_id: number
+  customer_id?: number | null
+  data: Record<string, unknown>
+  created_at: string
+}
+
+export interface FormDetail extends Form {
+  submissions: FormSubmission[]
+}
+
+// ---- Landing Pages ----
+export interface LandingPage {
+  id: number
+  slug: string
+  title: string
+  headline: string
+  body: string
+  form_id?: number | null
+  channel_key?: string | null
+  status: string
+  views: number
+  created_at: string
+}
+
+// ---- Posters ----
+export interface Poster {
+  id: number
+  name: string
+  template: string
+  title: string
+  subtitle: string
+  cta?: string | null
+  qr_target?: string | null
+  created_at: string
+}
+
+// ---- Members ----
+export interface Member {
+  id: number
+  customer_id: number
+  customer_name?: string | null
+  level: string
+  points: number
+  joined_at: string
+}
+
+export interface PointTransaction {
+  id: number
+  customer_id: number
+  delta: number
+  reason: string
+  balance_after: number
+  created_at: string
+}
+
+export interface MemberDetail extends Member {
+  next_level?: string | null
+  points_to_next: number
+  transactions: PointTransaction[]
+}

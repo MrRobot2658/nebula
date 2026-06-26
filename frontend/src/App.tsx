@@ -10,6 +10,10 @@ import Campaigns from './pages/Campaigns'
 import Automations from './pages/Automations'
 import Scoring from './pages/Scoring'
 import Events from './pages/Events'
+import Forms from './pages/Forms'
+import LandingPages from './pages/LandingPages'
+import Posters from './pages/Posters'
+import Members from './pages/Members'
 
 export default function App() {
   return (
@@ -26,6 +30,10 @@ export default function App() {
           <Route path="/automations" element={<Automations />} />
           <Route path="/scoring" element={<Scoring />} />
           <Route path="/events" element={<Events />} />
+          <Route path="/forms" element={<Forms />} />
+          <Route path="/landing-pages" element={<LandingPages />} />
+          <Route path="/posters" element={<Posters />} />
+          <Route path="/members" element={<Members />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

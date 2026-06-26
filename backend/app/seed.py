@@ -2,12 +2,18 @@
 import uuid
 
 from .database import session_scope
+from .membership import level_for
 from .models import (
     Automation,
     Campaign,
     Channel,
     Customer,
+    Form,
+    LandingPage,
+    Member,
     Message,
+    Poster,
+    PointTransaction,
     ScoreRule,
     Template,
 )
@@ -141,3 +147,56 @@ def seed_if_empty() -> bool:
             )
         )
         return True
+
+
+def seed_features() -> None:
+    """Seed demo data for forms / landing pages / posters / members independently,
+    so these modules have content even on an existing (already core-seeded) volume."""
+    with session_scope() as db:
+        form_id = None
+        if db.query(Form).count() == 0:
+            form = Form(
+                name="新品试用申请",
+                channel_key="website",
+                fields=[
+                    {"key": "name", "label": "姓名", "type": "text", "required": True},
+                    {"key": "phone", "label": "手机号", "type": "tel", "required": True},
+                    {"key": "demand", "label": "需求描述", "type": "textarea", "required": False},
+                ],
+            )
+            db.add(form)
+            db.flush()
+            form_id = form.id
+
+        if db.query(LandingPage).count() == 0:
+            db.add(
+                LandingPage(
+                    slug="summer-launch",
+                    title="夏日新品首发",
+                    headline="限时新品试用，注册即领专属优惠券",
+                    body="填写下方表单，抢先体验夏日新品，并获得专属折扣与会员积分。",
+                    form_id=form_id,
+                    channel_key="website",
+                    status="published",
+                    views=128,
+                )
+            )
+
+        if db.query(Poster).count() == 0:
+            db.add_all(
+                [
+                    Poster(name="夏日大促海报", template="sunset", title="夏日大促", subtitle="全场新品低至 7 折", cta="扫码抢购", qr_target="summer-launch"),
+                    Poster(name="新品首发海报", template="aurora", title="新品首发", subtitle="注册即领专属优惠券", cta="立即参与", qr_target="summer-launch"),
+                ]
+            )
+
+        if db.query(Member).count() == 0:
+            for name, pts in [("王五", 600), ("李四", 80)]:
+                customer = db.query(Customer).filter(Customer.name == name).first()
+                if customer:
+                    db.add(Member(customer_id=customer.id, level=level_for(pts), points=pts))
+                    db.add(
+                        PointTransaction(
+                            customer_id=customer.id, delta=pts, reason="历史积分", balance_after=pts
+                        )
+                    )

@@ -13,11 +13,15 @@ from .routers import (
     customers,
     dashboard,
     events,
+    forms,
+    landing,
+    members,
     messages,
+    posters,
     scoring,
     templates,
 )
-from .seed import seed_if_empty
+from .seed import seed_features, seed_if_empty
 
 tags_metadata = [
     {"name": "dashboard", "description": "概览统计：客户、消息、活动、评分等汇总指标。"},
@@ -30,6 +34,10 @@ tags_metadata = [
     {"name": "scoring", "description": "评分模型：评分规则与评分日志。"},
     {"name": "events", "description": "事件总线：所有 Skill 产生的标准事件流。"},
     {"name": "ai", "description": "AI 能力：基于 DeepSeek 的意图分析与回复建议。"},
+    {"name": "forms", "description": "表单：线索收集表单与提交记录，提交即生成线索并触发事件。"},
+    {"name": "landing", "description": "落地页：营销活动独立页、表单挂载、访问埋点。"},
+    {"name": "posters", "description": "海报：营销海报设计（样式模板 + 文案 + 二维码目标）。"},
+    {"name": "members", "description": "会员系统：等级、积分、积分流水与自动升级。"},
 ]
 
 app = FastAPI(
@@ -64,6 +72,10 @@ app.include_router(automations.router, prefix=API)
 app.include_router(scoring.router, prefix=API)
 app.include_router(events.router, prefix=API)
 app.include_router(ai.router, prefix=API)
+app.include_router(forms.router, prefix=API)
+app.include_router(landing.router, prefix=API)
+app.include_router(posters.router, prefix=API)
+app.include_router(members.router, prefix=API)
 
 
 def _wait_for_db(retries: int = 40, delay: float = 2.0) -> None:
@@ -84,6 +96,7 @@ def on_startup() -> None:
     Base.metadata.create_all(bind=engine)
     if seed_if_empty():
         print("[startup] seeded demo data")
+    seed_features()
 
 
 @app.get("/health", tags=["dashboard"], summary="健康检查")

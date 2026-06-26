@@ -188,6 +188,134 @@ class TrendPoint(BaseModel):
     count: int
 
 
+# ---------- Forms ----------
+class FormField(BaseModel):
+    key: str
+    label: str
+    type: str = "text"
+    required: bool = False
+
+
+class FormOut(ORMModel):
+    id: int
+    name: str
+    channel_key: Optional[str] = None
+    fields: list[FormField]
+    created_at: datetime
+
+
+class FormCreate(BaseModel):
+    name: str
+    channel_key: Optional[str] = None
+    fields: list[FormField]
+
+
+class FormSubmissionOut(ORMModel):
+    id: int
+    form_id: int
+    customer_id: Optional[int] = None
+    data: dict
+    created_at: datetime
+
+
+class FormDetailOut(FormOut):
+    submissions: list[FormSubmissionOut] = []
+
+
+class FormSubmitRequest(BaseModel):
+    data: dict
+    name: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[str] = None
+    channel_key: Optional[str] = None
+
+
+# ---------- Landing pages ----------
+class LandingPageOut(ORMModel):
+    id: int
+    slug: str
+    title: str
+    headline: str
+    body: str
+    form_id: Optional[int] = None
+    channel_key: Optional[str] = None
+    status: str
+    views: int
+    created_at: datetime
+
+
+class LandingPageCreate(BaseModel):
+    title: str
+    headline: str = ""
+    body: str = ""
+    slug: Optional[str] = None
+    form_id: Optional[int] = None
+    channel_key: Optional[str] = None
+
+
+class LandingPagePatch(BaseModel):
+    title: Optional[str] = None
+    headline: Optional[str] = None
+    body: Optional[str] = None
+    status: Optional[str] = None
+    form_id: Optional[int] = None
+
+
+# ---------- Posters ----------
+class PosterOut(ORMModel):
+    id: int
+    name: str
+    template: str
+    title: str
+    subtitle: str
+    cta: Optional[str] = None
+    qr_target: Optional[str] = None
+    created_at: datetime
+
+
+class PosterCreate(BaseModel):
+    name: str
+    template: str = "aurora"
+    title: str = ""
+    subtitle: str = ""
+    cta: Optional[str] = None
+    qr_target: Optional[str] = None
+
+
+# ---------- Members ----------
+class MemberOut(ORMModel):
+    id: int
+    customer_id: int
+    customer_name: Optional[str] = None
+    level: str
+    points: int
+    joined_at: datetime
+
+
+class MemberCreate(BaseModel):
+    customer_id: int
+
+
+class PointAdjust(BaseModel):
+    delta: int
+    reason: str = "手动调整"
+
+
+class PointTransactionOut(ORMModel):
+    id: int
+    customer_id: int
+    delta: int
+    reason: str
+    balance_after: int
+    created_at: datetime
+
+
+class MemberDetailOut(MemberOut):
+    next_level: Optional[str] = None
+    points_to_next: int = 0
+    transactions: list[PointTransactionOut] = []
+
+
 class AiSuggestRequest(BaseModel):
     customer_id: Optional[int] = None
     content: str

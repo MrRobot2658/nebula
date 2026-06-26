@@ -9,7 +9,14 @@ import type {
   CustomerDetail,
   DashboardStats,
   Event,
+  Form,
+  FormDetail,
+  FormSubmission,
+  LandingPage,
+  Member,
+  MemberDetail,
   Message,
+  Poster,
   ScoreRule,
   Template,
 } from './types'
@@ -185,5 +192,128 @@ export async function getEvents(limit?: number): Promise<Event[]> {
   const { data } = await api.get<Event[]>('/events', {
     params: limit != null ? { limit } : undefined,
   })
+  return data
+}
+
+// ---- Forms ----
+export async function getForms(): Promise<Form[]> {
+  const { data } = await api.get<Form[]>('/forms')
+  return data
+}
+
+export async function getForm(id: number): Promise<FormDetail> {
+  const { data } = await api.get<FormDetail>(`/forms/${id}`)
+  return data
+}
+
+export async function createForm(body: {
+  name: string
+  channel_key?: string
+  fields: { key: string; label: string; type: string; required: boolean }[]
+}): Promise<Form> {
+  const { data } = await api.post<Form>('/forms', body)
+  return data
+}
+
+export async function submitForm(
+  id: number,
+  body: {
+    data: Record<string, unknown>
+    name?: string
+    phone?: string
+    email?: string
+    channel_key?: string
+  }
+): Promise<FormSubmission> {
+  const { data } = await api.post<FormSubmission>(`/forms/${id}/submit`, body)
+  return data
+}
+
+// ---- Landing Pages ----
+export async function getLandingPages(): Promise<LandingPage[]> {
+  const { data } = await api.get<LandingPage[]>('/landing-pages')
+  return data
+}
+
+export async function getLandingPage(id: number): Promise<LandingPage> {
+  const { data } = await api.get<LandingPage>(`/landing-pages/${id}`)
+  return data
+}
+
+export async function createLandingPage(body: {
+  title: string
+  headline?: string
+  body?: string
+  slug?: string
+  form_id?: number
+  channel_key?: string
+}): Promise<LandingPage> {
+  const { data } = await api.post<LandingPage>('/landing-pages', body)
+  return data
+}
+
+export async function patchLandingPage(
+  id: number,
+  body: {
+    title?: string
+    headline?: string
+    body?: string
+    status?: string
+    form_id?: number
+  }
+): Promise<LandingPage> {
+  const { data } = await api.patch<LandingPage>(`/landing-pages/${id}`, body)
+  return data
+}
+
+export async function viewLandingPage(id: number): Promise<LandingPage> {
+  const { data } = await api.post<LandingPage>(`/landing-pages/${id}/view`)
+  return data
+}
+
+// ---- Posters ----
+export async function getPosters(): Promise<Poster[]> {
+  const { data } = await api.get<Poster[]>('/posters')
+  return data
+}
+
+export async function getPosterTemplates(): Promise<string[]> {
+  const { data } = await api.get<string[]>('/posters/templates')
+  return data
+}
+
+export async function createPoster(body: {
+  name: string
+  template: string
+  title: string
+  subtitle: string
+  cta?: string
+  qr_target?: string
+}): Promise<Poster> {
+  const { data } = await api.post<Poster>('/posters', body)
+  return data
+}
+
+// ---- Members ----
+export async function getMembers(): Promise<Member[]> {
+  const { data } = await api.get<Member[]>('/members')
+  return data
+}
+
+export async function createMember(customerId: number): Promise<Member> {
+  const { data } = await api.post<Member>('/members', { customer_id: customerId })
+  return data
+}
+
+export async function getMember(customerId: number): Promise<MemberDetail> {
+  const { data } = await api.get<MemberDetail>(`/members/${customerId}`)
+  return data
+}
+
+export async function adjustMemberPoints(
+  customerId: number,
+  body: { delta: number; reason: string }
+): Promise<Member> {
+  const { data } = await api.post<Member>(`/members/${customerId}/points`, body)
   return data
 }

@@ -119,6 +119,75 @@ class ScoreLog(Base):
     created_at = Column(DateTime, default=_now)
 
 
+class Form(Base):
+    __tablename__ = "forms"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(128), nullable=False)
+    channel_key = Column(String(64), nullable=True)
+    fields = Column(JSON, nullable=False, default=list)  # [{key,label,type,required}]
+    created_at = Column(DateTime, default=_now)
+
+
+class FormSubmission(Base):
+    __tablename__ = "form_submissions"
+
+    id = Column(Integer, primary_key=True)
+    form_id = Column(Integer, ForeignKey("forms.id"), nullable=False)
+    customer_id = Column(Integer, nullable=True)
+    data = Column(JSON, nullable=False, default=dict)
+    created_at = Column(DateTime, default=_now)
+
+
+class LandingPage(Base):
+    __tablename__ = "landing_pages"
+
+    id = Column(Integer, primary_key=True)
+    slug = Column(String(96), unique=True, nullable=False)
+    title = Column(String(160), nullable=False)
+    headline = Column(String(255), nullable=False, default="")
+    body = Column(Text, nullable=False, default="")
+    form_id = Column(Integer, nullable=True)
+    channel_key = Column(String(64), nullable=True)
+    status = Column(String(16), nullable=False, default="published")
+    views = Column(Integer, nullable=False, default=0)
+    created_at = Column(DateTime, default=_now)
+
+
+class Poster(Base):
+    __tablename__ = "posters"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(128), nullable=False)
+    template = Column(String(32), nullable=False, default="aurora")  # 渲染样式
+    title = Column(String(160), nullable=False, default="")
+    subtitle = Column(String(255), nullable=False, default="")
+    cta = Column(String(64), nullable=True)
+    qr_target = Column(String(255), nullable=True)  # 落地页 slug 或 URL
+    created_at = Column(DateTime, default=_now)
+
+
+class Member(Base):
+    __tablename__ = "members"
+
+    id = Column(Integer, primary_key=True)
+    customer_id = Column(Integer, ForeignKey("customers.id"), unique=True, nullable=False)
+    level = Column(String(32), nullable=False, default="普通会员")
+    points = Column(Integer, nullable=False, default=0)
+    joined_at = Column(DateTime, default=_now)
+
+
+class PointTransaction(Base):
+    __tablename__ = "point_transactions"
+
+    id = Column(Integer, primary_key=True)
+    customer_id = Column(Integer, ForeignKey("customers.id"), nullable=False)
+    delta = Column(Integer, nullable=False, default=0)
+    reason = Column(String(255), nullable=False, default="")
+    balance_after = Column(Integer, nullable=False, default=0)
+    created_at = Column(DateTime, default=_now)
+
+
 class Event(Base):
     __tablename__ = "events"
 

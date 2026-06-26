@@ -13,13 +13,16 @@ import re
 from .celery_app import celery_app
 from .config import settings
 from .database import session_scope
+from .membership import level_for
 from .models import (
     Automation,
     AutomationRun,
     Channel,
     Customer,
     Event,
+    Member,
     Message,
+    PointTransaction,
     ScoreLog,
     ScoreRule,
     Template,
@@ -197,10 +200,44 @@ def dispatch_event(event_id: int) -> dict:
             return {"error": "event not found"}
 
         scoring = _run_scoring(db, event)
+        membership = _run_membership(db, event)
         automations = _run_automations(db, event)
         ai = _run_ai_suggestion(db, event)
 
-    return {"event": event_id, "scoring": scoring, "automations": automations, "ai": ai}
+    return {"event": event_id, "scoring": scoring, "membership": membership, "automations": automations, "ai": ai}
+
+
+def _run_membership(db, event: Event) -> dict:
+    """Award loyalty points to enrolled members on `order_placed`, auto-upgrading level."""
+    if event.type != "order_placed" or event.customer_id is None:
+        return {}
+    member = db.query(Member).filter(Member.customer_id == event.customer_id).first()
+    if not member:
+        return {}
+    points = int((event.payload or {}).get("points", 50))
+    old_level = member.level
+    member.points += points
+    member.level = level_for(member.points)
+    db.add(
+        PointTransaction(
+            customer_id=event.customer_id,
+            delta=points,
+            reason="订单积分",
+            balance_after=member.points,
+        )
+    )
+    db.flush()
+    result = {"points": points, "total": member.points, "level": member.level}
+    if member.level != old_level:
+        db.add(
+            Event(
+                type="member.level_up",
+                customer_id=event.customer_id,
+                payload={"from": old_level, "to": member.level},
+            )
+        )
+        result["level_up"] = f"{old_level} → {member.level}"
+    return result
 
 
 def _run_ai_suggestion(db, event: Event) -> dict:

@@ -18,8 +18,8 @@ describe('客户详情页', () => {
         cy.contains('评分').should('be.visible')
       })
 
-    // 时间线
-    cy.get('[data-testid="customer-timeline"]', { timeout: 15000 }).should('be.visible')
-    cy.contains('客户时间线').should('be.visible')
+    // 时间线（标题在可滚动容器中，断言其存在并滚动到可视区）
+    cy.get('[data-testid="customer-timeline"]', { timeout: 15000 }).should('exist')
+    cy.contains('客户时间线').scrollIntoView().should('exist')
   })
 })

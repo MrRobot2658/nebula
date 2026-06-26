@@ -11,6 +11,10 @@ const titles: { match: (p: string) => boolean; title: string }[] = [
   { match: (p) => p.startsWith('/automations'), title: '自动化流程' },
   { match: (p) => p.startsWith('/scoring'), title: '评分模型' },
   { match: (p) => p.startsWith('/events'), title: '事件流' },
+  { match: (p) => p.startsWith('/forms'), title: '表单' },
+  { match: (p) => p.startsWith('/landing-pages'), title: '落地页' },
+  { match: (p) => p.startsWith('/posters'), title: '海报' },
+  { match: (p) => p.startsWith('/members'), title: '会员' },
 ]
 
 export default function Topbar() {

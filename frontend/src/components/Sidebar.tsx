@@ -1,8 +1,11 @@
 import clsx from 'clsx'
 import {
   Boxes,
+  Crown,
   FileText,
+  Image,
   LayoutDashboard,
+  LayoutTemplate,
   MessageSquare,
   Megaphone,
   Radio,
@@ -54,6 +57,15 @@ const groups: NavGroup[] = [
     items: [
       { to: '/automations', label: '自动化流程', icon: Workflow },
       { to: '/scoring', label: '评分模型', icon: Target },
+    ],
+  },
+  {
+    title: '增长',
+    items: [
+      { to: '/forms', label: '表单', icon: FileText },
+      { to: '/landing-pages', label: '落地页', icon: LayoutTemplate },
+      { to: '/posters', label: '海报', icon: Image },
+      { to: '/members', label: '会员', icon: Crown },
     ],
   },
   {
