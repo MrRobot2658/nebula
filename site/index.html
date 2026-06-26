@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Nebula 星云 — 以 ChatUI 为核心的 Marketing Automation Agent</title>
+<meta name="description" content="Nebula 星云是一款面向中国市场的营销自动化 Agent。以 ChatUI 统一交互，9 渠道 / 5 内容 / 6 活动 共 20 个 Skill 插件化接入，原生 AI 引擎驱动全域营销。">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: { extend: {
+    colors: { ink:'#0b0a1f', nebula:{ 400:'#a78bfa', 500:'#8b5cf6', 600:'#7c3aed' } },
+    fontFamily: { sans: ['system-ui','-apple-system','"PingFang SC"','"Microsoft YaHei"','sans-serif'] }
+  }}
+}
+</script>
+<style>
+  html{scroll-behavior:smooth}
+  body{-webkit-font-smoothing:antialiased}
+  /* 星云渐变背景 */
+  .nebula-bg{background:
+    radial-gradient(900px 500px at 15% 0%, rgba(124,58,237,.45), transparent 60%),
+    radial-gradient(800px 600px at 90% 10%, rgba(56,189,248,.30), transparent 55%),
+    radial-gradient(700px 700px at 50% 100%, rgba(236,72,153,.22), transparent 60%),
+    #0b0a1f;}
+  .stars{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+  .stars::before,.stars::after{content:"";position:absolute;inset:-50%;
+    background-image:radial-gradient(1.5px 1.5px at 20px 30px,#fff,transparent),radial-gradient(1px 1px at 120px 80px,#fff,transparent),radial-gradient(1.5px 1.5px at 220px 160px,rgba(255,255,255,.8),transparent),radial-gradient(1px 1px at 320px 40px,#fff,transparent),radial-gradient(1px 1px at 420px 220px,#fff,transparent);
+    background-size:480px 280px;opacity:.5;animation:drift 90s linear infinite}
+  .stars::after{background-size:360px 220px;opacity:.3;animation-duration:140s}
+  @keyframes drift{from{transform:translateY(0)}to{transform:translateY(-280px)}}
+  .gradient-text{background:linear-gradient(120deg,#c4b5fd,#a78bfa 40%,#38bdf8);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .glass{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(10px)}
+  .card-hover{transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease}
+  .card-hover:hover{transform:translateY(-4px);border-color:rgba(167,139,250,.55);box-shadow:0 16px 40px -16px rgba(124,58,237,.55)}
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.in{opacity:1;transform:none}
+  .chat-bubble{animation:pop .5s ease both}
+  @keyframes pop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+  .tab-btn.active{background:#7c3aed;color:#fff;border-color:#7c3aed}
+  .mono{font-family:'JetBrains Mono','Fira Code',ui-monospace,monospace}
+  details[open] .faq-icon{transform:rotate(45deg)}
+</style>
+</head>
+<body class="bg-ink text-slate-200 font-sans">
+
+<!-- ============ NAV ============ -->
+<header class="fixed top-0 inset-x-0 z-50">
+  <div class="max-w-6xl mx-auto px-5">
+    <nav class="mt-3 glass rounded-2xl px-4 sm:px-5 py-3 flex items-center justify-between">
+      <a href="#top" class="flex items-center gap-2.5">
+        <span class="inline-grid place-items-center w-8 h-8 rounded-lg bg-gradient-to-br from-nebula-500 to-sky-400 text-white font-black">N</span>
+        <span class="font-bold tracking-tight text-white">Nebula <span class="text-nebula-400">星云</span></span>
+      </a>
+      <div class="hidden md:flex items-center gap-7 text-sm text-slate-300">
+        <a href="#why" class="hover:text-white transition">为什么是 Nebula</a>
+        <a href="#chatui" class="hover:text-white transition">ChatUI</a>
+        <a href="#modules" class="hover:text-white transition">能力模块</a>
+        <a href="#case" class="hover:text-white transition">案例</a>
+        <a href="#compare" class="hover:text-white transition">对比</a>
+        <a href="/docs/" class="hover:text-white transition">产品文档</a>
+      </div>
+      <a href="#start" class="text-sm font-semibold text-white bg-nebula-600 hover:bg-nebula-500 transition px-4 py-2 rounded-xl">免费开始</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section id="top" class="relative nebula-bg overflow-hidden">
+  <div class="stars"></div>
+  <div class="relative max-w-6xl mx-auto px-5 pt-36 pb-24 md:pt-44 md:pb-28">
+    <div class="grid lg:grid-cols-2 gap-12 items-center">
+      <div>
+        <div class="inline-flex items-center gap-2 glass rounded-full px-3 py-1 text-xs text-nebula-400 mb-6">
+          <span class="w-1.5 h-1.5 rounded-full bg-nebula-400 animate-pulse"></span>
+          Marketing Automation Agent · 面向中国市场
+        </div>
+        <h1 class="text-4xl md:text-6xl font-black leading-[1.1] text-white tracking-tight">
+          把营销自动化<br>装进<span class="gradient-text">一个对话框</span>
+        </h1>
+        <p class="mt-6 text-lg text-slate-300 max-w-xl">
+          Nebula 星云以 <strong class="text-white">ChatUI</strong> 替代传统菜单-表单后台，用原生 AI Agent 驱动营销。
+          9 渠道、5 内容、6 活动共 <strong class="text-white">20 个 Skill</strong> 插件化接入，可插拔、可组合，覆盖企业全域营销。
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href="#start" class="font-semibold text-white bg-nebula-600 hover:bg-nebula-500 transition px-6 py-3 rounded-xl shadow-lg shadow-nebula-600/30">免费开始 →</a>
+          <a href="#chatui" class="font-semibold text-white glass hover:bg-white/10 transition px-6 py-3 rounded-xl">看看它怎么工作</a>
+        </div>
+        <p class="mt-5 text-xs text-slate-400">对标 Marketo 能力模型 · 针对微信生态与中国渠道深度重构</p>
+      </div>
+
+      <!-- ChatUI 迷你示意 -->
+      <div class="relative">
+        <div class="glass rounded-3xl p-3 shadow-2xl shadow-black/40">
+          <div class="rounded-2xl bg-ink/80 border border-white/10 overflow-hidden">
+            <div class="flex items-center gap-1.5 px-4 py-2.5 border-b border-white/10">
+              <span class="w-2.5 h-2.5 rounded-full bg-red-400/80"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-yellow-400/80"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-green-400/80"></span>
+              <span class="ml-2 text-[11px] text-slate-400">Nebula ChatUI · 微信渠道</span>
+            </div>
+            <div class="grid grid-cols-12 text-[11px]">
+              <div class="col-span-3 border-r border-white/10 p-2 space-y-1.5 text-slate-400">
+                <div class="text-nebula-400 font-semibold">渠道</div>
+                <div class="bg-nebula-600/20 text-nebula-300 rounded px-1.5 py-0.5">微信</div>
+                <div>企微 · 公众号</div>
+                <div class="text-nebula-400 font-semibold pt-1">活动</div>
+                <div>自动化 · 评分</div>
+              </div>
+              <div class="col-span-6 p-3 space-y-2">
+                <div class="chat-bubble inline-block bg-white/10 rounded-2xl rounded-tl-sm px-3 py-1.5 text-slate-200" style="animation-delay:.1s">你好，这款皮草怎么卖？</div>
+                <div class="chat-bubble flex justify-end" style="animation-delay:.5s"><span class="inline-block bg-nebula-600 text-white rounded-2xl rounded-tr-sm px-3 py-1.5">您好！为您准备了产品介绍和夏日优惠券 🎁</span></div>
+                <div class="chat-bubble glass rounded-xl px-2.5 py-1.5 text-[10px] text-sky-300" style="animation-delay:.9s">✨ AI 建议：高意向新客，推送优惠券</div>
+              </div>
+              <div class="col-span-3 border-l border-white/10 p-2 space-y-1.5">
+                <div class="text-slate-400">客户卡片</div>
+                <div class="text-white font-semibold">李四 · 新客</div>
+                <div class="flex items-center gap-1"><span class="text-slate-400">评分</span><span class="text-green-400 font-bold">93</span></div>
+                <div class="h-1 rounded bg-white/10 overflow-hidden"><div class="h-full w-[93%] bg-gradient-to-r from-nebula-500 to-sky-400"></div></div>
+                <div class="text-[10px] text-nebula-300 pt-1">⚡ 触发：高意向跟进</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="absolute -z-10 -inset-6 bg-nebula-600/20 blur-3xl rounded-full"></div>
+      </div>
+    </div>
+
+    <!-- stat band -->
+    <div class="mt-20 grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="glass rounded-2xl p-5 text-center"><div class="text-3xl font-black text-white">9</div><div class="text-xs text-slate-400 mt-1">渠道 Skill</div></div>
+      <div class="glass rounded-2xl p-5 text-center"><div class="text-3xl font-black text-white">5</div><div class="text-xs text-slate-400 mt-1">内容 Skill</div></div>
+      <div class="glass rounded-2xl p-5 text-center"><div class="text-3xl font-black text-white">6</div><div class="text-xs text-slate-400 mt-1">活动 Skill</div></div>
+      <div class="glass rounded-2xl p-5 text-center"><div class="text-3xl font-black gradient-text">20</div><div class="text-xs text-slate-400 mt-1">开箱即用插件</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WHY ============ -->
+<section id="why" class="py-24 px-5">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center max-w-2xl mx-auto reveal">
+      <p class="text-nebula-400 font-semibold text-sm tracking-wider uppercase">为什么是 Nebula</p>
+      <h2 class="text-3xl md:text-4xl font-bold text-white mt-3">和传统营销 SaaS，根本不是一回事</h2>
+      <p class="mt-4 text-slate-400">微盟、有赞、尘锋、销售易仍是「菜单 - 表单 - 表格」范式。Nebula 借鉴 Marketo 的能力模型，但为中国市场做了三个关键改变。</p>
+    </div>
+    <div class="mt-14 grid md:grid-cols-3 gap-5">
+      <div class="reveal card-hover glass rounded-2xl p-7">
+        <div class="w-12 h-12 grid place-items-center rounded-xl bg-nebula-600/20 text-2xl mb-5">💬</div>
+        <h3 class="text-xl font-bold text-white">ChatUI 统一交互</h3>
+        <p class="mt-3 text-slate-400 text-sm leading-relaxed">用一个聊天界面替代传统表单后台。日常营销在对话中完成，复杂配置侧滑展开，零学习成本上手。</p>
+      </div>
+      <div class="reveal card-hover glass rounded-2xl p-7" style="transition-delay:.08s">
+        <div class="w-12 h-12 grid place-items-center rounded-xl bg-sky-500/20 text-2xl mb-5">🤖</div>
+        <h3 class="text-xl font-bold text-white">原生 AI Agent</h3>
+        <p class="mt-3 text-slate-400 text-sm leading-relaxed">AI 不是某个模块的附加功能，而是产品内核。实时分析客户意图、识别身份、生成话术与下一步建议。</p>
+      </div>
+      <div class="reveal card-hover glass rounded-2xl p-7" style="transition-delay:.16s">
+        <div class="w-12 h-12 grid place-items-center rounded-xl bg-pink-500/20 text-2xl mb-5">🧩</div>
+        <h3 class="text-xl font-bold text-white">Skill 插件化架构</h3>
+        <p class="mt-3 text-slate-400 text-sm leading-relaxed">渠道、内容、活动全部以 Skill 接入，可插拔可组合。小微企业最小只装 3 个，大企业全域编排。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CHATUI ============ -->
+<section id="chatui" class="py-24 px-5 bg-gradient-to-b from-transparent via-nebula-600/5 to-transparent">
+  <div class="max-w-6xl mx-auto grid lg:grid-cols-2 gap-14 items-center">
+    <div class="reveal">
+      <p class="text-nebula-400 font-semibold text-sm tracking-wider uppercase">核心交互</p>
+      <h2 class="text-3xl md:text-4xl font-bold text-white mt-3">ChatUI 三栏布局</h2>
+      <p class="mt-4 text-slate-400">对话在中间，上下文环绕。所有营销动作都围绕一次真实对话自然展开。</p>
+      <div class="mt-8 space-y-4">
+        <div class="flex gap-4">
+          <span class="shrink-0 w-9 h-9 grid place-items-center rounded-lg bg-white/10 text-nebula-300 font-bold">左</span>
+          <div><div class="text-white font-semibold">导航面板 · 260px</div><div class="text-sm text-slate-400">渠道 / 内容 / 活动分区，一处切换全域。</div></div>
+        </div>
+        <div class="flex gap-4">
+          <span class="shrink-0 w-9 h-9 grid place-items-center rounded-lg bg-white/10 text-nebula-300 font-bold">中</span>
+          <div><div class="text-white font-semibold">对话主界面 · 700px</div><div class="text-sm text-slate-400">对话 + AI 建议 + 快捷回复，运营动作一键完成。</div></div>
+        </div>
+        <div class="flex gap-4">
+          <span class="shrink-0 w-9 h-9 grid place-items-center rounded-lg bg-white/10 text-nebula-300 font-bold">右</span>
+          <div><div class="text-white font-semibold">上下文面板 · 540px</div><div class="text-sm text-slate-400">客户卡片 + 活动状态 + 自动化规则，实时同步。</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="reveal">
+      <div class="glass rounded-3xl p-3">
+        <div class="grid grid-cols-12 gap-2 text-xs">
+          <div class="col-span-3 rounded-2xl bg-white/5 p-3 space-y-2">
+            <div class="text-nebula-400 font-semibold">渠道 (9)</div>
+            <div class="text-slate-300">微信 · 企微 · 公众号</div>
+            <div class="text-slate-300">小程序 · 官网 · 飞书</div>
+            <div class="text-nebula-400 font-semibold pt-2">内容 (5)</div>
+            <div class="text-slate-300">模板 · 素材 · A/B</div>
+            <div class="text-nebula-400 font-semibold pt-2">活动 (6)</div>
+            <div class="text-slate-300">自动化 · 触发器</div>
+          </div>
+          <div class="col-span-6 rounded-2xl bg-white/5 p-3 space-y-2">
+            <div class="bg-white/10 rounded-xl rounded-tl-sm px-3 py-2 inline-block">我想了解你们的新品</div>
+            <div class="flex justify-end"><div class="bg-nebula-600 text-white rounded-xl rounded-tr-sm px-3 py-2 inline-block">这是新品手册和专属优惠～</div></div>
+            <div class="glass rounded-lg px-2.5 py-2 text-sky-300 text-[11px]">✨ AI：意图=产品咨询 · 建议推送优惠券</div>
+            <div class="flex gap-1.5 pt-1 flex-wrap">
+              <span class="bg-white/10 rounded-full px-2.5 py-1 text-[10px]">产品手册</span>
+              <span class="bg-white/10 rounded-full px-2.5 py-1 text-[10px]">优惠券</span>
+              <span class="bg-white/10 rounded-full px-2.5 py-1 text-[10px]">预约</span>
+            </div>
+          </div>
+          <div class="col-span-3 rounded-2xl bg-white/5 p-3 space-y-2">
+            <div class="text-white font-semibold">李四</div>
+            <div class="text-slate-400 text-[11px]">新客 · 微信</div>
+            <div class="text-slate-400">评分 <span class="text-green-400 font-bold">93</span></div>
+            <div class="h-1.5 rounded bg-white/10 overflow-hidden"><div class="h-full w-[93%] bg-gradient-to-r from-nebula-500 to-sky-400"></div></div>
+            <div class="text-nebula-300 text-[11px] pt-1">⚡ 高意向跟进流程</div>
+            <div class="text-slate-400 text-[11px]">OneID 已关联 3 渠道</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MODULES ============ -->
+<section id="modules" class="py-24 px-5">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center max-w-2xl mx-auto reveal">
+      <p class="text-nebula-400 font-semibold text-sm tracking-wider uppercase">能力模块</p>
+      <h2 class="text-3xl md:text-4xl font-bold text-white mt-3">20 个 Skill，开箱即用</h2>
+      <p class="mt-4 text-slate-400">预装即用，按需加载。特殊定制可通过 SDK 开发自有 Skill。</p>
+    </div>
+
+    <div class="mt-10 flex justify-center gap-2 reveal">
+      <button class="tab-btn active text-sm font-semibold border border-white/15 rounded-full px-5 py-2 transition" data-tab="ch">渠道 · 9</button>
+      <button class="tab-btn text-sm font-semibold border border-white/15 rounded-full px-5 py-2 transition" data-tab="co">内容 · 5</button>
+      <button class="tab-btn text-sm font-semibold border border-white/15 rounded-full px-5 py-2 transition" data-tab="ac">活动 · 6</button>
+    </div>
+
+    <!-- 渠道 -->
+    <div class="tab-panel mt-10" data-panel="ch">
+      <p class="text-center text-sm text-slate-400 mb-6">覆盖中国消费者全部触达方式 · 从微信生态到企业协作平台</p>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4" id="grid-ch"></div>
+    </div>
+    <div class="tab-panel mt-10 hidden" data-panel="co">
+      <p class="text-center text-sm text-slate-400 mb-6">覆盖营销内容全生命周期 · 从创建到智能分发</p>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4" id="grid-co"></div>
+    </div>
+    <div class="tab-panel mt-10 hidden" data-panel="ac">
+      <p class="text-center text-sm text-slate-400 mb-6">从自动化营销到线上线下活动 · 覆盖营销全场景</p>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4" id="grid-ac"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DATA LAYER ============ -->
+<section class="py-24 px-5 bg-gradient-to-b from-transparent via-sky-500/5 to-transparent">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center max-w-2xl mx-auto reveal">
+      <p class="text-nebula-400 font-semibold text-sm tracking-wider uppercase">统一数据层</p>
+      <h2 class="text-3xl md:text-4xl font-bold text-white mt-3">所有 Skill 共享的数据底座</h2>
+      <p class="mt-4 text-slate-400">CDP + OneID + 事件总线，让全渠道客户与行为统一可用。</p>
+    </div>
+    <div class="mt-12 grid md:grid-cols-3 gap-5">
+      <div class="reveal card-hover glass rounded-2xl p-7">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">🗂️ CDP 客户数据平台</h3>
+        <p class="mt-3 text-sm text-slate-400">集成全渠道客户数据。</p>
+        <ul class="mt-4 space-y-1.5 text-sm text-slate-300">
+          <li>· 行为数据：浏览 / 点击 / 购买 / 咨询</li>
+          <li>· 属性数据：地域 / 行业 / 职级 / 企业</li>
+          <li>· 交易数据：金额 / 频次 / 品类偏好</li>
+        </ul>
+      </div>
+      <div class="reveal card-hover glass rounded-2xl p-7" style="transition-delay:.08s">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">🆔 OneID 身份统一</h3>
+        <p class="mt-3 text-sm text-slate-400">跨渠道身份自动关联。</p>
+        <ul class="mt-4 space-y-1.5 text-sm text-slate-300">
+          <li>· 微信 OpenID → 企微 → UnionID → 手机号</li>
+          <li>· 确定性匹配 + 概率匹配</li>
+          <li>· 冲突解决：优先级 + 人工合并</li>
+        </ul>
+      </div>
+      <div class="reveal card-hover glass rounded-2xl p-7" style="transition-delay:.16s">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">🔁 事件总线</h3>
+        <p class="mt-3 text-sm text-slate-400">驱动所有 Skill 协同。</p>
+        <ul class="mt-4 space-y-1.5 text-sm text-slate-300">
+          <li>· 发布/订阅，至少一次投递</li>
+          <li>· 事件持久化，支持回放</li>
+          <li>· 跨 Skill 延迟 <span class="mono">&lt; 100ms</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CASE ============ -->
+<section id="case" class="py-24 px-5">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center max-w-2xl mx-auto reveal">
+      <p class="text-nebula-400 font-semibold text-sm tracking-wider uppercase">完整案例</p>
+      <h2 class="text-3xl md:text-4xl font-bold text-white mt-3">新客「李四」从微信咨询到下单</h2>
+      <p class="mt-4 text-slate-400">某 DTC 皮草品牌用 Nebula 管理营销，一次真实对话如何被自动放大为转化。</p>
+    </div>
+    <div class="mt-14 relative">
+      <div class="absolute left-[19px] md:left-1/2 top-2 bottom-2 w-px bg-gradient-to-b from-nebula-500/60 via-white/15 to-transparent md:-translate-x-px"></div>
+      <div class="space-y-6">
+        <!-- step -->
+        <div class="case-step reveal md:grid md:grid-cols-2 md:gap-8 items-center">
+          <div class="md:text-right md:pr-10 relative">
+            <span class="step-dot"></span>
+            <div class="glass rounded-2xl p-5 inline-block text-left md:text-right">
+              <div class="text-nebula-400 text-xs font-bold mono">01 · message_received</div>
+              <div class="text-white font-semibold mt-1">微信消息到达</div>
+              <p class="text-sm text-slate-400 mt-1">wechat-skill 发出事件，ChatUI 中栏显示对话，右栏自动识别客户身份。</p>
+            </div>
+          </div><div class="hidden md:block"></div>
+        </div>
+        <div class="case-step reveal md:grid md:grid-cols-2 md:gap-8 items-center">
+          <div class="hidden md:block"></div>
+          <div class="md:pl-10 relative">
+            <span class="step-dot"></span>
+            <div class="glass rounded-2xl p-5">
+              <div class="text-sky-400 text-xs font-bold mono">02 · AI 分析 + 评分</div>
+              <div class="text-white font-semibold mt-1">意图识别，初始 60 分</div>
+              <p class="text-sm text-slate-400 mt-1">AI 判定「产品咨询 · 新客」，建议：高意向新客，回复产品介绍 + 推送夏日优惠券。</p>
+            </div>
+          </div>
+        </div>
+        <div class="case-step reveal md:grid md:grid-cols-2 md:gap-8 items-center">
+          <div class="md:text-right md:pr-10 relative">
+            <span class="step-dot"></span>
+            <div class="glass rounded-2xl p-5 inline-block text-left md:text-right">
+              <div class="text-nebula-400 text-xs font-bold mono">03 · 快捷回复</div>
+              <div class="text-white font-semibold mt-1">素材一键发送</div>
+              <p class="text-sm text-slate-400 mt-1">素材面板推荐产品 PDF / 新品图 / 优惠券，点击填入即发，报表记录渠道与活动归因。</p>
+            </div>
+          </div><div class="hidden md:block"></div>
+        </div>
+        <div class="case-step reveal md:grid md:grid-cols-2 md:gap-8 items-center">
+          <div class="hidden md:block"></div>
+          <div class="md:pl-10 relative">
+            <span class="step-dot"></span>
+            <div class="glass rounded-2xl p-5">
+              <div class="text-sky-400 text-xs font-bold mono">04 · 自动化跟进</div>
+              <div class="text-white font-semibold mt-1">评分 93 &gt; 阈值 80，触发流程</div>
+              <p class="text-sm text-slate-400 mt-1">启动「新客跟进流程」：24h 后发优惠券提醒，7 天未下单自动回访。</p>
+            </div>
+          </div>
+        </div>
+        <div class="case-step reveal md:grid md:grid-cols-2 md:gap-8 items-center">
+          <div class="md:text-right md:pr-10 relative">
+            <span class="step-dot"></span>
+            <div class="rounded-2xl p-5 inline-block text-left md:text-right bg-gradient-to-br from-nebula-600/30 to-sky-500/20 border border-nebula-400/30">
+              <div class="text-green-400 text-xs font-bold mono">05 · order_placed</div>
+              <div class="text-white font-semibold mt-1">下单转化 🎉</div>
+              <p class="text-sm text-slate-300 mt-1">小程序下单成功，报表归因渠道=微信，评分 +20，OneID 关联微信身份到订单。</p>
+            </div>
+          </div><div class="hidden md:block"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ COMPARE ============ -->
+<section id="compare" class="py-24 px-5">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center max-w-2xl mx-auto reveal">
+      <p class="text-nebula-400 font-semibold text-sm tracking-wider uppercase">竞品对比</p>
+      <h2 class="text-3xl md:text-4xl font-bold text-white mt-3">Nebula vs 国内同类产品</h2>
+    </div>
+    <div class="mt-12 reveal overflow-x-auto">
+      <table class="w-full min-w-[640px] border-collapse text-sm glass rounded-2xl overflow-hidden">
+        <thead>
+          <tr class="text-left text-slate-300 border-b border-white/10">
+            <th class="p-4 font-semibold">维度</th>
+            <th class="p-4 font-medium">微盟</th>
+            <th class="p-4 font-medium">有赞</th>
+            <th class="p-4 font-medium">尘锋</th>
+            <th class="p-4 font-medium">销售易</th>
+            <th class="p-4 font-bold text-nebula-300 bg-nebula-600/15">Nebula</th>
+          </tr>
+        </thead>
+        <tbody class="text-slate-400">
+          <tr class="border-b border-white/5"><td class="p-4 font-medium text-slate-200">定位</td><td class="p-4">智慧零售</td><td class="p-4">社交电商</td><td class="p-4">SCRM</td><td class="p-4">CRM</td><td class="p-4 font-semibold text-nebula-300 bg-nebula-600/10">MA Agent</td></tr>
+          <tr class="border-b border-white/5"><td class="p-4 font-medium text-slate-200">交互</td><td class="p-4">菜单-表单</td><td class="p-4">菜单-表单</td><td class="p-4">菜单-表单</td><td class="p-4">菜单-表单</td><td class="p-4 font-semibold text-nebula-300 bg-nebula-600/10">ChatUI</td></tr>
+          <tr class="border-b border-white/5"><td class="p-4 font-medium text-slate-200">架构</td><td class="p-4">SaaS</td><td class="p-4">SaaS</td><td class="p-4">SaaS</td><td class="p-4">SaaS</td><td class="p-4 font-semibold text-nebula-300 bg-nebula-600/10">Skill 插件化</td></tr>
+          <tr class="border-b border-white/5"><td class="p-4 font-medium text-slate-200">AI</td><td class="p-4">模块级</td><td class="p-4">模块级</td><td class="p-4">模块级</td><td class="p-4">模块级</td><td class="p-4 font-semibold text-nebula-300 bg-nebula-600/10">原生 Agent</td></tr>
+          <tr><td class="p-4 font-medium text-slate-200">渠道</td><td class="p-4">公众号+小程序</td><td class="p-4">小程序</td><td class="p-4">企微</td><td class="p-4">企微+官网</td><td class="p-4 font-semibold text-nebula-300 bg-nebula-600/10">9 渠道全覆盖</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section class="py-24 px-5">
+  <div class="max-w-3xl mx-auto">
+    <div class="text-center reveal">
+      <p class="text-nebula-400 font-semibold text-sm tracking-wider uppercase">常见问题</p>
+      <h2 class="text-3xl md:text-4xl font-bold text-white mt-3">还有疑问？</h2>
+    </div>
+    <div class="mt-10 space-y-3" id="faq"></div>
+  </div>
+</section>
+
+<!-- ============ CTA ============ -->
+<section id="start" class="px-5 pb-24">
+  <div class="max-w-5xl mx-auto relative nebula-bg rounded-3xl overflow-hidden">
+    <div class="stars"></div>
+    <div class="relative px-6 py-16 md:py-20 text-center">
+      <h2 class="text-3xl md:text-5xl font-black text-white">把营销自动化，<span class="gradient-text">交给一次对话</span></h2>
+      <p class="mt-5 text-slate-300 max-w-xl mx-auto">最小可只装 3 个 Skill（微信 + 模板库 + 自动化），5 分钟跑通第一个自动化营销流程。</p>
+      <div class="mt-8 flex flex-wrap justify-center gap-3">
+        <a href="#top" class="font-semibold text-white bg-nebula-600 hover:bg-nebula-500 transition px-7 py-3.5 rounded-xl shadow-lg shadow-nebula-600/30">免费开始</a>
+        <a href="/docs/" class="font-semibold text-white glass hover:bg-white/10 transition px-7 py-3.5 rounded-xl">查看产品文档</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="border-t border-white/10 px-5 py-10">
+  <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-400">
+    <div class="flex items-center gap-2.5">
+      <span class="inline-grid place-items-center w-7 h-7 rounded-lg bg-gradient-to-br from-nebula-500 to-sky-400 text-white font-black text-xs">N</span>
+      <span class="text-white font-semibold">Nebula 星云</span>
+      <span class="text-slate-500">· Marketing Automation Agent</span>
+    </div>
+    <div class="text-slate-500">产品设计文档 v0.2 · 以 ChatUI 为核心交互</div>
+  </div>
+</footer>
+
+<script>
+// ---- Skill 数据 ----
+const data = {
+  ch: [
+    ['微信 WeChat','wechat-skill','个人微信渠道，通过微信协议客户端对接'],
+    ['企业微信 WeCom','wecom-skill','企业微信渠道，SCRM 核心场景'],
+    ['公众号 MP','mp-skill','微信公众号（订阅号/服务号）渠道'],
+    ['小程序 Mini Program','miniapp-skill','微信/支付宝小程序渠道'],
+    ['官网 Website','website-skill','品牌官网和落地页渠道'],
+    ['飞书 Feishu','feishu-skill','飞书渠道，企业协作场景'],
+    ['钉钉 DingTalk','dingtalk-skill','钉钉渠道，企业内外部沟通'],
+    ['短信 SMS','sms-skill','短信渠道，验证码和营销触达'],
+    ['邮件 Email','email-skill','邮件渠道，传统营销触达方式'],
+  ],
+  co: [
+    ['模板库 Templates','template-skill','跨渠道消息模板，变量替换与实时预览'],
+    ['素材库 Assets','asset-skill','集中管理图片、视频、文件、链接'],
+    ['A/B 测试','abtest-skill','对内容、时间、渠道组合做分流测试'],
+    ['个性化 Personalization','personalization-skill','基于画像与行为的智能推荐引擎'],
+    ['内容中台 Content Hub','content-hub-skill','统一生产/审核/分发/分析的内容中台'],
+  ],
+  ac: [
+    ['自动化流程 Automation','automation-skill','可视化拖拽式流程编辑器'],
+    ['触发器 Triggers','trigger-skill','事件驱动规则引擎：当 X 发生时执行 Y'],
+    ['评分模型 Scoring','scoring-skill','客户打分，识别高意向/高价值客户'],
+    ['分析报表 Analytics','analytics-skill','全渠道营销活动效果分析'],
+    ['线上会议 Webinar','webinar-skill','线上会议/直播/研讨会管理'],
+    ['线下活动 Offline','offline-skill','线下会议/展会/门店活动管理'],
+  ]
+};
+const accent = { ch:'text-nebula-300 bg-nebula-600/20', co:'text-green-300 bg-green-500/15', ac:'text-amber-300 bg-amber-500/15' };
+function card(item, key){
+  return `<div class="card-hover glass rounded-2xl p-5">
+    <div class="flex items-start justify-between gap-2">
+      <h4 class="font-semibold text-white">${item[0]}</h4>
+    </div>
+    <span class="inline-block text-[11px] mono rounded px-2 py-0.5 mt-2 ${accent[key]}">${item[1]}</span>
+    <p class="text-sm text-slate-400 mt-3">${item[2]}</p>
+  </div>`;
+}
+['ch','co','ac'].forEach(k => document.getElementById('grid-'+k).innerHTML = data[k].map(i=>card(i,k)).join(''));
+
+// ---- Tabs ----
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('hidden', p.dataset.panel!==btn.dataset.tab));
+  });
+});
+
+// ---- FAQ ----
+const faqs = [
+  ['Nebula 和微盟 / 有赞 / 尘锋有什么不同？','微盟、有赞偏社交电商，尘锋偏 SCRM。Nebula 是通用的 Marketing Automation Agent，以 ChatUI 统一交互、Skill 插件化覆盖以上所有场景。核心差异：开放插件生态 + 原生 AI 引擎 + 统一 ChatUI。'],
+  ['Skill 需要自己开发吗？','20 个核心 Skill（9 渠道 + 5 内容 + 6 活动）预装开箱即用，只有特殊定制才需要 SDK 开发。'],
+  ['ChatUI 能胜任复杂配置吗？','日常操作在 ChatUI 中完成；复杂配置（自动化画布、评分模型、报表）弹出侧滑面板或独立页面。'],
+  ['同一客户多渠道怎么处理？','OneID 自动匹配。微信、小程序、企微、官网上的同一客户自动识别合并。'],
+  ['小微企业适用吗？','适用。Skill 按需加载，最小可只装 3 个插件（微信 + 模板库 + 自动化），ChatUI 零学习成本。'],
+  ['数据安全如何保障？','全程加密，渠道 Skill 仅持临时凭证，支持私有化部署。'],
+];
+document.getElementById('faq').innerHTML = faqs.map(f=>`
+  <details class="glass rounded-2xl px-5 group">
+    <summary class="flex items-center justify-between cursor-pointer py-4 list-none">
+      <span class="font-semibold text-white pr-4">${f[0]}</span>
+      <span class="faq-icon shrink-0 text-nebula-400 text-xl transition-transform">+</span>
+    </summary>
+    <p class="text-sm text-slate-400 pb-5 -mt-1">${f[1]}</p>
+  </details>`).join('');
+
+// ---- Reveal on scroll ----
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+},{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+
+<style>
+  .step-dot{position:absolute;top:24px;width:14px;height:14px;border-radius:50%;background:#8b5cf6;box-shadow:0 0 0 4px rgba(139,92,246,.2)}
+  .case-step .md\:text-right .step-dot{left:-7px}
+  @media(min-width:768px){
+    .case-step:nth-child(odd) .step-dot{right:-47px;left:auto}
+    .case-step:nth-child(even) .step-dot{left:-47px}
+  }
+  @media(max-width:767px){ .step-dot{left:13px} .case-step{padding-left:44px;position:relative} }
+</style>
+</body>
+</html>
+</content>
+</invoke>

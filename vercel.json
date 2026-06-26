@@ -1,11 +1,7 @@
 {
-  "version": 2,
-  "buildCommand": null,
-  "outputDirectory": "docs",
-  "devCommand": null,
-  "installCommand": null,
-  "routes": [
-    { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/docs/$1" }
+  "rewrites": [
+    { "source": "/", "destination": "/site/index.html" },
+    { "source": "/docs", "destination": "/site/docs/index.html" },
+    { "source": "/docs/", "destination": "/site/docs/index.html" }
   ]
 }

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>产品文档 — Nebula 星云</title>
+<meta name="description" content="Nebula 星云产品文档：20 个 Skill 模块、统一数据层与 API/SDK 的完整产品需求文档。">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+tailwind.config = { theme: { extend: {
+  colors: { ink:'#0b0a1f', nebula:{400:'#a78bfa',500:'#8b5cf6',600:'#7c3aed'} },
+  fontFamily: { sans:['system-ui','-apple-system','"PingFang SC"','"Microsoft YaHei"','sans-serif'] }
+}}}
+</script>
+<style>
+  html{scroll-behavior:smooth}
+  body{-webkit-font-smoothing:antialiased}
+  .nebula-bg{background:radial-gradient(900px 500px at 15% 0%,rgba(124,58,237,.28),transparent 60%),radial-gradient(800px 600px at 90% 10%,rgba(56,189,248,.18),transparent 55%),#0b0a1f}
+  .glass{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);backdrop-filter:blur(10px)}
+  .nav-link{display:block;border-radius:.55rem;padding:.4rem .7rem;font-size:.86rem;color:#94a3b8;transition:all .15s}
+  .nav-link:hover{color:#fff;background:rgba(255,255,255,.06)}
+  .nav-link.active{color:#fff;background:rgba(124,58,237,.22);box-shadow:inset 2px 0 0 #8b5cf6}
+  .nav-group{font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#64748b;padding:.9rem .7rem .3rem}
+  /* Markdown prose (dark) */
+  .prose{color:#cbd5e1;font-size:.95rem;line-height:1.75;max-width:46rem}
+  .prose h1{color:#fff;font-size:2rem;font-weight:800;letter-spacing:-.01em;margin:.2rem 0 1rem}
+  .prose h2{color:#fff;font-size:1.3rem;font-weight:700;margin:2.2rem 0 .9rem;padding-bottom:.4rem;border-bottom:1px solid rgba(255,255,255,.1)}
+  .prose h3{color:#e2e8f0;font-size:1.05rem;font-weight:600;margin:1.6rem 0 .6rem}
+  .prose p{margin:.7rem 0}
+  .prose a{color:#a78bfa;text-decoration:none;border-bottom:1px solid rgba(167,139,250,.35)}
+  .prose a:hover{color:#c4b5fd}
+  .prose strong{color:#f1f5f9}
+  .prose ul,.prose ol{margin:.7rem 0;padding-left:1.3rem}
+  .prose li{margin:.3rem 0}
+  .prose ul{list-style:disc}
+  .prose ol{list-style:decimal}
+  .prose blockquote{margin:1rem 0;padding:.6rem 1rem;border-left:3px solid #7c3aed;background:rgba(124,58,237,.08);border-radius:.4rem;color:#cbd5e1}
+  .prose blockquote p{margin:.2rem 0}
+  .prose code{font-family:'JetBrains Mono','Fira Code',ui-monospace,monospace;font-size:.82em;background:rgba(148,163,184,.15);color:#fca5a5;padding:.1em .4em;border-radius:.3em}
+  .prose pre{background:#0a0f1f;border:1px solid rgba(255,255,255,.1);border-radius:.6rem;padding:1rem 1.1rem;overflow-x:auto;margin:1rem 0}
+  .prose pre code{background:none;color:#e2e8f0;padding:0;font-size:.8rem;line-height:1.6}
+  .prose table{width:100%;border-collapse:collapse;margin:1.1rem 0;font-size:.86rem;display:block;overflow-x:auto}
+  .prose th{text-align:left;background:rgba(255,255,255,.05);color:#e2e8f0;font-weight:600;padding:.6rem .8rem;border:1px solid rgba(255,255,255,.1)}
+  .prose td{padding:.6rem .8rem;border:1px solid rgba(255,255,255,.08);color:#cbd5e1;vertical-align:top}
+  .prose tr:nth-child(even) td{background:rgba(255,255,255,.02)}
+  .prose hr{border:0;border-top:1px solid rgba(255,255,255,.1);margin:2rem 0}
+  ::-webkit-scrollbar{width:9px;height:9px}
+  ::-webkit-scrollbar-thumb{background:rgba(148,163,184,.25);border-radius:9px}
+</style>
+</head>
+<body class="nebula-bg text-slate-300 font-sans min-h-screen">
+
+<!-- top bar -->
+<header class="sticky top-0 z-40 glass">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <button id="menuBtn" class="lg:hidden text-slate-300 text-xl px-1" aria-label="菜单">☰</button>
+      <a href="/" class="flex items-center gap-2.5">
+        <span class="inline-grid place-items-center w-7 h-7 rounded-lg bg-gradient-to-br from-nebula-500 to-sky-400 text-white font-black text-sm">N</span>
+        <span class="font-bold text-white">Nebula <span class="text-nebula-400">星云</span></span>
+        <span class="hidden sm:inline text-slate-500 text-sm">· 产品文档</span>
+      </a>
+    </div>
+    <a href="/" class="text-sm text-slate-300 hover:text-white transition">← 返回官网</a>
+  </div>
+</header>
+
+<div class="max-w-7xl mx-auto flex">
+  <!-- sidebar -->
+  <aside id="sidebar" class="fixed lg:sticky top-14 z-30 h-[calc(100vh-3.5rem)] w-72 shrink-0 overflow-y-auto px-3 py-4 bg-ink/95 lg:bg-transparent border-r border-white/10 -translate-x-full lg:translate-x-0 transition-transform">
+    <nav id="nav"></nav>
+  </aside>
+  <div id="backdrop" class="fixed inset-0 z-20 bg-black/50 hidden lg:hidden"></div>
+
+  <!-- content -->
+  <main class="flex-1 min-w-0 px-5 sm:px-10 py-10">
+    <article id="doc" class="prose mx-auto"></article>
+    <div id="loading" class="text-slate-500 text-sm">加载中…</div>
+    <footer class="prose mx-auto mt-16 pt-6 border-t border-white/10 text-xs text-slate-500">
+      Nebula 星云 — Marketing Automation Agent · 产品设计文档 v0.2
+    </footer>
+  </main>
+</div>
+
+<script>
+const PRD_BASE = '/prd';
+const NAV = [
+  { group:'入门', items:[
+    ['00-product-overview','产品总览'],
+    ['01-concepts','核心概念'],
+    ['02-data-layer','统一数据层'],
+    ['03-api-sdk','API & SDK'],
+  ]},
+  { group:'渠道模块 · 9', items:[
+    ['channels/wechat','微信 WeChat'],
+    ['channels/wecom','企业微信 WeCom'],
+    ['channels/mp','公众号 MP'],
+    ['channels/miniapp','小程序 Mini Program'],
+    ['channels/website','官网 Website'],
+    ['channels/feishu','飞书 Feishu'],
+    ['channels/dingtalk','钉钉 DingTalk'],
+    ['channels/sms','短信 SMS'],
+    ['channels/email','邮件 Email'],
+  ]},
+  { group:'内容模块 · 5', items:[
+    ['content/template','模板库 Templates'],
+    ['content/asset','素材库 Assets'],
+    ['content/abtest','A/B 测试'],
+    ['content/personalization','个性化 Personalization'],
+    ['content/hub','内容中台 Content Hub'],
+  ]},
+  { group:'活动模块 · 6', items:[
+    ['activity/automation','自动化流程 Automation'],
+    ['activity/trigger','触发器 Triggers'],
+    ['activity/scoring','评分模型 Scoring'],
+    ['activity/analytics','分析报表 Analytics'],
+    ['activity/webinar','线上会议 Webinar'],
+    ['activity/offline','线下活动 Offline'],
+  ]},
+];
+
+// build sidebar
+const navEl = document.getElementById('nav');
+navEl.innerHTML = NAV.map(g =>
+  `<div class="nav-group">${g.group}</div>` +
+  g.items.map(([id,label]) => `<a class="nav-link" data-id="${id}" href="#/${id}">${label}</a>`).join('')
+).join('');
+
+const docEl = document.getElementById('doc');
+const loadEl = document.getElementById('loading');
+const cache = {};
+
+function setActive(id){
+  document.querySelectorAll('.nav-link').forEach(a => a.classList.toggle('active', a.dataset.id === id));
+}
+
+async function load(id){
+  setActive(id);
+  loadEl.style.display='block'; docEl.innerHTML='';
+  try{
+    if(!cache[id]){
+      const res = await fetch(`${PRD_BASE}/${id}.md`, {cache:'no-cache'});
+      if(!res.ok) throw new Error(res.status);
+      cache[id] = await res.text();
+    }
+    docEl.innerHTML = marked.parse(cache[id]);
+    // rewrite intra-doc .md links to hash routes
+    docEl.querySelectorAll('a[href$=".md"]').forEach(a=>{
+      let href = a.getAttribute('href').replace(/\.md$/,'');
+      // resolve relative to current id's directory
+      if(!href.startsWith('/')){
+        const dir = id.includes('/') ? id.slice(0, id.lastIndexOf('/')) : '';
+        href = (dir ? dir + '/' : '') + href;
+        href = href.replace(/^\.\//,'');
+      }
+      a.setAttribute('href', '#/' + href);
+    });
+    window.scrollTo({top:0});
+  }catch(e){
+    docEl.innerHTML = `<h1>未找到文档</h1><p>无法加载 <code>${id}.md</code>（${e.message}）。</p>`;
+  }finally{ loadEl.style.display='none'; closeMobile(); }
+}
+
+function route(){
+  const id = (location.hash.replace(/^#\//,'') || '00-product-overview');
+  load(id);
+}
+window.addEventListener('hashchange', route);
+
+// mobile sidebar
+const sb = document.getElementById('sidebar'), bd = document.getElementById('backdrop');
+function openMobile(){ sb.classList.remove('-translate-x-full'); bd.classList.remove('hidden'); }
+function closeMobile(){ if(window.innerWidth<1024){ sb.classList.add('-translate-x-full'); bd.classList.add('hidden'); } }
+document.getElementById('menuBtn').addEventListener('click', openMobile);
+bd.addEventListener('click', closeMobile);
+
+marked.setOptions({ gfm:true, breaks:false });
+route();
+</script>
+</body>
+</html>
