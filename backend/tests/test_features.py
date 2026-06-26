@@ -109,6 +109,15 @@ class FeaturesTestCase(unittest.TestCase):
         self.assertEqual(detail["next_level"], "金卡会员")
         self.assertGreaterEqual(len(detail["transactions"]), 1)
 
+    # ---- members: search by name ----
+    def test_members_search(self):
+        c = self.client.post("/api/customers", json={"name": "搜索会员小张"}).json()
+        self.client.post("/api/members", json={"customer_id": c["id"]})
+        hit = self.client.get("/api/members", params={"search": "搜索会员小张"}).json()
+        self.assertTrue(any(m["customer_name"] == "搜索会员小张" for m in hit))
+        miss = self.client.get("/api/members", params={"search": "不存在的名字xyz"}).json()
+        self.assertEqual(len(miss), 0)
+
     # ---- membership: order_placed awards points via the event pipeline ----
     def test_order_placed_awards_points(self):
         c = self.client.post("/api/customers", json={"name": "下单会员"}).json()
@@ -120,6 +129,55 @@ class FeaturesTestCase(unittest.TestCase):
         member = self.client.get(f"/api/members/{c['id']}").json()
         self.assertEqual(member["points"], 120)
         self.assertEqual(member["level"], "银卡会员")
+
+
+    # ---- webinars: create, send form during live ----
+    def test_webinar_send_form(self):
+        self.assertGreaterEqual(len(self.client.get("/api/webinars").json()), 1)
+
+        form = self.client.post(
+            "/api/forms",
+            json={"name": "直播问卷", "fields": [{"key": "name", "label": "姓名", "type": "text", "required": True}]},
+        ).json()
+        w = self.client.post("/api/webinars", json={"title": "单测直播", "host": "主持", "form_id": form["id"]}).json()
+        self.assertEqual(w["status"], "scheduled")
+
+        # go live
+        self.client.patch(f"/api/webinars/{w['id']}", json={"status": "live"})
+        # send the form to the audience
+        r = self.client.post(f"/api/webinars/{w['id']}/send-form", json={})
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.json()["stats"]["forms_sent"], 1)
+        self.assertEqual(r.json()["form"]["id"], form["id"])
+
+        self.assertIn("webinar.form_sent", {e["type"] for e in self.client.get("/api/events?limit=80").json()})
+
+    # ---- offline events: landing-page QR registration + checkin ----
+    def test_offline_event_registration_and_checkin(self):
+        self.assertGreaterEqual(len(self.client.get("/api/offline-events").json()), 1)
+
+        # build form -> landing -> offline event chain
+        form = self.client.post(
+            "/api/forms",
+            json={"name": "签到表单", "fields": [{"key": "name", "label": "姓名", "type": "text", "required": True}]},
+        ).json()
+        page = self.client.post(
+            "/api/landing-pages", json={"title": "线下报名页", "headline": "扫码报名", "form_id": form["id"]}
+        ).json()
+        ev = self.client.post(
+            "/api/offline-events", json={"title": "单测线下会", "location": "北京", "landing_page_id": page["id"]}
+        ).json()
+
+        # a visitor registers via the landing's form (扫码报名)
+        self.client.post(f"/api/forms/{form['id']}/submit", json={"name": "到场嘉宾", "phone": "13700000123", "data": {"name": "到场嘉宾"}})
+
+        detail = self.client.get(f"/api/offline-events/{ev['id']}").json()
+        self.assertEqual(detail["public_url"], f"/l/{page['slug']}")
+        self.assertGreaterEqual(detail["registrations"], 1)
+
+        # on-site checkin
+        r = self.client.post(f"/api/offline-events/{ev['id']}/checkin", json={})
+        self.assertEqual(r.json()["stats"]["checkins"], 1)
 
 
 class MembershipUtilTest(unittest.TestCase):

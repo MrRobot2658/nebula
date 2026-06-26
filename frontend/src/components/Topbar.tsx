@@ -14,7 +14,10 @@ const titles: { match: (p: string) => boolean; title: string }[] = [
   { match: (p) => p.startsWith('/forms'), title: '表单' },
   { match: (p) => p.startsWith('/landing-pages'), title: '落地页' },
   { match: (p) => p.startsWith('/posters'), title: '海报' },
+  { match: (p) => /^\/members\/\d+/.test(p), title: '会员画像' },
   { match: (p) => p.startsWith('/members'), title: '会员' },
+  { match: (p) => p.startsWith('/webinars'), title: '线上直播' },
+  { match: (p) => p.startsWith('/offline-events'), title: '线下会议' },
 ]
 
 export default function Topbar() {

@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from typing import Optional
+
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from ..database import get_db
@@ -23,9 +25,15 @@ def _to_out(db: Session, member: Member) -> MemberOut:
     return MemberOut(**data)
 
 
-@router.get("/members", response_model=list[MemberOut], summary="会员列表")
-def list_members(db: Session = Depends(get_db)):
-    members = db.query(Member).order_by(Member.points.desc()).all()
+@router.get("/members", response_model=list[MemberOut], summary="会员列表 / 搜索")
+def list_members(
+    search: Optional[str] = Query(None, description="按会员（客户）姓名搜索"),
+    db: Session = Depends(get_db),
+):
+    q = db.query(Member).join(Customer, Customer.id == Member.customer_id)
+    if search:
+        q = q.filter(Customer.name.like(f"%{search}%"))
+    members = q.order_by(Member.points.desc()).all()
     return [_to_out(db, m) for m in members]
 
 

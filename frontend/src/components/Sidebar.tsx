@@ -1,6 +1,7 @@
 import clsx from 'clsx'
 import {
   Boxes,
+  CalendarDays,
   Crown,
   FileText,
   Image,
@@ -12,6 +13,7 @@ import {
   Sparkles,
   Target,
   Users,
+  Video,
   Workflow,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
@@ -66,6 +68,13 @@ const groups: NavGroup[] = [
       { to: '/landing-pages', label: '落地页', icon: LayoutTemplate },
       { to: '/posters', label: '海报', icon: Image },
       { to: '/members', label: '会员', icon: Crown },
+    ],
+  },
+  {
+    title: '活动',
+    items: [
+      { to: '/webinars', label: '线上直播', icon: Video },
+      { to: '/offline-events', label: '线下会议', icon: CalendarDays },
     ],
   },
   {

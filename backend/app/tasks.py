@@ -202,7 +202,15 @@ def dispatch_event(event_id: int) -> dict:
         scoring = _run_scoring(db, event)
         membership = _run_membership(db, event)
         automations = _run_automations(db, event)
-        ai = _run_ai_suggestion(db, event)
+
+    # AI suggestion runs in a SEPARATE transaction: the DeepSeek HTTP call can take
+    # seconds, and we must not hold the scoring/automation transaction open that long
+    # (it would delay the auto-reply / tag / score from becoming visible).
+    ai = {}
+    with session_scope() as db:
+        event = db.get(Event, event_id)
+        if event:
+            ai = _run_ai_suggestion(db, event)
 
     return {"event": event_id, "scoring": scoring, "membership": membership, "automations": automations, "ai": ai}
 

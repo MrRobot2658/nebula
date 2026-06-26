@@ -12,10 +12,12 @@ from .models import (
     LandingPage,
     Member,
     Message,
+    OfflineEvent,
     Poster,
     PointTransaction,
     ScoreRule,
     Template,
+    Webinar,
 )
 
 CHANNELS = [
@@ -200,3 +202,32 @@ def seed_features() -> None:
                             customer_id=customer.id, delta=pts, reason="历史积分", balance_after=pts
                         )
                     )
+
+        if db.query(Webinar).count() == 0:
+            a_form = db.query(Form).first()
+            db.add(
+                Webinar(
+                    title="夏日新品线上发布会",
+                    host="市场部",
+                    scheduled_at="2026-07-01T20:00:00",
+                    status="scheduled",
+                    channel_key="wechat",
+                    form_id=a_form.id if a_form else None,
+                    stats={"forms_sent": 0},
+                )
+            )
+
+        if db.query(OfflineEvent).count() == 0:
+            a_landing = db.query(LandingPage).filter(LandingPage.slug == "summer-launch").first() or db.query(LandingPage).first()
+            a_poster = db.query(Poster).first()
+            db.add(
+                OfflineEvent(
+                    title="城市新品品鉴会 · 上海站",
+                    location="上海 · 静安",
+                    scheduled_at="2026-07-15T14:00:00",
+                    status="upcoming",
+                    landing_page_id=a_landing.id if a_landing else None,
+                    poster_id=a_poster.id if a_poster else None,
+                    stats={"checkins": 0},
+                )
+            )

@@ -14,6 +14,9 @@ import Forms from './pages/Forms'
 import LandingPages from './pages/LandingPages'
 import Posters from './pages/Posters'
 import Members from './pages/Members'
+import MemberProfile from './pages/MemberProfile'
+import Webinars from './pages/Webinars'
+import OfflineEvents from './pages/OfflineEvents'
 
 export default function App() {
   return (
@@ -34,6 +37,9 @@ export default function App() {
           <Route path="/landing-pages" element={<LandingPages />} />
           <Route path="/posters" element={<Posters />} />
           <Route path="/members" element={<Members />} />
+          <Route path="/members/:customerId" element={<MemberProfile />} />
+          <Route path="/webinars" element={<Webinars />} />
+          <Route path="/offline-events" element={<OfflineEvents />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

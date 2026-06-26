@@ -316,6 +316,79 @@ class MemberDetailOut(MemberOut):
     transactions: list[PointTransactionOut] = []
 
 
+# ---------- Webinars (线上直播) ----------
+class WebinarOut(ORMModel):
+    id: int
+    title: str
+    host: Optional[str] = None
+    scheduled_at: Optional[str] = None
+    status: str
+    channel_key: Optional[str] = None
+    form_id: Optional[int] = None
+    stats: dict
+    created_at: datetime
+
+
+class WebinarCreate(BaseModel):
+    title: str
+    host: Optional[str] = None
+    scheduled_at: Optional[str] = None
+    channel_key: Optional[str] = None
+    form_id: Optional[int] = None
+
+
+class WebinarPatch(BaseModel):
+    status: Optional[str] = None
+    form_id: Optional[int] = None
+
+
+class WebinarDetailOut(WebinarOut):
+    form: Optional[FormOut] = None
+    registrations: int = 0
+
+
+class SendFormRequest(BaseModel):
+    form_id: Optional[int] = None
+
+
+# ---------- Offline events (线下会议) ----------
+class OfflineEventOut(ORMModel):
+    id: int
+    title: str
+    location: Optional[str] = None
+    scheduled_at: Optional[str] = None
+    status: str
+    landing_page_id: Optional[int] = None
+    poster_id: Optional[int] = None
+    stats: dict
+    created_at: datetime
+
+
+class OfflineEventCreate(BaseModel):
+    title: str
+    location: Optional[str] = None
+    scheduled_at: Optional[str] = None
+    landing_page_id: Optional[int] = None
+    poster_id: Optional[int] = None
+
+
+class OfflineEventPatch(BaseModel):
+    status: Optional[str] = None
+    landing_page_id: Optional[int] = None
+    poster_id: Optional[int] = None
+
+
+class OfflineEventDetailOut(OfflineEventOut):
+    landing: Optional[LandingPageOut] = None
+    public_url: Optional[str] = None
+    poster: Optional[PosterOut] = None
+    registrations: int = 0
+
+
+class CheckinRequest(BaseModel):
+    customer_id: Optional[int] = None
+
+
 class AiSuggestRequest(BaseModel):
     customer_id: Optional[int] = None
     content: str

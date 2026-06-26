@@ -21,4 +21,27 @@ describe('海报页', () => {
       .contains(name)
       .should('be.visible')
   })
+
+  it('预览模式：以成品海报展示', () => {
+    cy.visit('/posters')
+
+    cy.get('[data-testid="poster-card"]', { timeout: 15000 })
+      .its('length')
+      .should('be.gte', 1)
+
+    // 记录第一张海报的标题，打开预览
+    cy.get('[data-testid="poster-card"]')
+      .first()
+      .find('h3')
+      .first()
+      .invoke('text')
+      .then((title) => {
+        cy.get('[data-testid="preview-poster-button"]', { timeout: 15000 })
+          .first()
+          .click()
+
+        cy.get('[data-testid="poster-preview"]', { timeout: 15000 }).should('be.visible')
+        cy.get('[data-testid="poster-preview"]').should('contain.text', title.trim())
+      })
+  })
 })

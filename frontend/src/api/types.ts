@@ -206,3 +206,41 @@ export interface MemberDetail extends Member {
   points_to_next: number
   transactions: PointTransaction[]
 }
+
+// ---- Webinars ----
+export interface Webinar {
+  id: number
+  title: string
+  host?: string | null
+  scheduled_at?: string | null
+  status: string
+  channel_key?: string | null
+  form_id?: number | null
+  stats: Record<string, unknown>
+  created_at: string
+}
+
+export interface WebinarDetail extends Webinar {
+  form?: Form | null
+  registrations: number
+}
+
+// ---- Offline Events ----
+export interface OfflineEvent {
+  id: number
+  title: string
+  location?: string | null
+  scheduled_at?: string | null
+  status: string
+  landing_page_id?: number | null
+  poster_id?: number | null
+  stats: Record<string, unknown>
+  created_at: string
+}
+
+export interface OfflineEventDetail extends OfflineEvent {
+  landing?: LandingPage | null
+  public_url?: string | null
+  poster?: Poster | null
+  registrations: number
+}

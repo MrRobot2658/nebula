@@ -95,7 +95,7 @@ describe('Nebula 后端 API e2e', () => {
         const hasReceived = types.includes('message_received')
         const hasSuggestion = types.includes('ai.suggestion')
 
-        if ((hasReceived && hasSuggestion) || attempt >= 12) {
+        if ((hasReceived && hasSuggestion) || attempt >= 20) {
           expect(types, '包含 message_received').to.include('message_received')
           expect(types, '包含 ai.suggestion').to.include('ai.suggestion')
           return

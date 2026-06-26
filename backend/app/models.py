@@ -188,6 +188,34 @@ class PointTransaction(Base):
     created_at = Column(DateTime, default=_now)
 
 
+class Webinar(Base):
+    __tablename__ = "webinars"
+
+    id = Column(Integer, primary_key=True)
+    title = Column(String(160), nullable=False)
+    host = Column(String(96), nullable=True)
+    scheduled_at = Column(String(32), nullable=True)  # ISO 字符串
+    status = Column(String(16), nullable=False, default="scheduled")  # scheduled/live/ended
+    channel_key = Column(String(64), nullable=True)
+    form_id = Column(Integer, nullable=True)  # 直播中可发送的表单
+    stats = Column(JSON, nullable=False, default=dict)
+    created_at = Column(DateTime, default=_now)
+
+
+class OfflineEvent(Base):
+    __tablename__ = "offline_events"
+
+    id = Column(Integer, primary_key=True)
+    title = Column(String(160), nullable=False)
+    location = Column(String(160), nullable=True)
+    scheduled_at = Column(String(32), nullable=True)
+    status = Column(String(16), nullable=False, default="upcoming")  # upcoming/ongoing/ended
+    landing_page_id = Column(Integer, nullable=True)  # 扫码报名落地页
+    poster_id = Column(Integer, nullable=True)  # 推广海报
+    stats = Column(JSON, nullable=False, default=dict)
+    created_at = Column(DateTime, default=_now)
+
+
 class Event(Base):
     __tablename__ = "events"
 

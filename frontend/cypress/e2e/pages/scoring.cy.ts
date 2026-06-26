@@ -13,10 +13,10 @@ describe('评分模型页', () => {
     cy.get('input[placeholder="如 主动咨询加分"]', { timeout: 10000 }).type(name)
     cy.contains('button', '保存').click()
 
-    // 新规则出现
-    cy.get('[data-testid="score-rule-table"]', { timeout: 15000 })
-      .contains(name)
-      .should('be.visible')
+    // 新规则出现（行可能被滚动容器裁剪，滚动到可视区后断言存在）
+    cy.contains('[data-testid="score-rule-row"]', name, { timeout: 15000 })
+      .scrollIntoView()
+      .should('exist')
     cy.get('[data-testid="score-rule-row"]')
       .its('length')
       .should('be.greaterThan', 0)

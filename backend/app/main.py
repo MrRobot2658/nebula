@@ -17,10 +17,12 @@ from .routers import (
     landing,
     members,
     messages,
+    offline,
     posters,
     public,
     scoring,
     templates,
+    webinars,
 )
 from .seed import seed_features, seed_if_empty
 
@@ -40,6 +42,8 @@ tags_metadata = [
     {"name": "posters", "description": "海报：营销海报设计（样式模板 + 文案 + 二维码目标）。"},
     {"name": "members", "description": "会员系统：等级、积分、积分流水与自动升级。"},
     {"name": "public", "description": "对外可访问的公开落地页 `/l/{slug}`（含可提交的线索表单）。"},
+    {"name": "webinars", "description": "线上直播：直播管理，可在直播中向观众发送表单。"},
+    {"name": "offline", "description": "线下会议：通过落地页扫码报名、现场签到。"},
 ]
 
 app = FastAPI(
@@ -78,6 +82,8 @@ app.include_router(forms.router, prefix=API)
 app.include_router(landing.router, prefix=API)
 app.include_router(posters.router, prefix=API)
 app.include_router(members.router, prefix=API)
+app.include_router(webinars.router, prefix=API)
+app.include_router(offline.router, prefix=API)
 app.include_router(public.router)  # public landing pages at /l/{slug} (no /api prefix)
 
 

@@ -1,21 +1,37 @@
 /// <reference types="cypress" />
 
 describe('会员页', () => {
-  it('展示会员并打开详情查看等级与流水', () => {
+  it('展示会员、搜索过滤并进入会员画像页', () => {
     cy.visit('/members')
 
     // 会员表格渲染（种子 >= 2）
     cy.get('[data-testid="member-table"]', { timeout: 15000 }).should('be.visible')
-    cy.get('[data-testid="member-row"]', { timeout: 15000 })
-      .its('length')
-      .should('be.gte', 2)
+    cy.get('[data-testid="member-row"]', { timeout: 15000 }).should('have.length.gte', 2)
 
-    // 打开第一位会员详情
+    // 记录第一位会员姓名首字用于搜索
+    cy.get('[data-testid="member-row"]').first().invoke('text').then((text) => {
+      const keyword = text.replace(/\s/g, '').slice(0, 1)
+      cy.get('[data-testid="member-search"]').clear().type(keyword)
+      cy.wait(700) // 等待防抖触发重新拉取后再断言
+      // 单个可重试的回调断言，避免 .each 持有已分离的 DOM 引用
+      cy.get('[data-testid="member-row"]', { timeout: 10000 }).should(($rows) => {
+        expect($rows.length, '过滤后至少一行').to.be.gte(1)
+        $rows.each((_, el) => {
+          expect(el.innerText).to.contain(keyword)
+        })
+      })
+    })
+
+    // 清空搜索后进入第一位会员的画像页
+    cy.get('[data-testid="member-search"]').clear()
+    cy.wait(700)
+    cy.get('[data-testid="member-row"]', { timeout: 15000 }).should('have.length.gte', 1)
     cy.get('[data-testid="member-row"]').first().click()
 
-    // 详情面板展示等级与积分流水（部分文字在可滚动容器内，断言存在并滚动到可视区）
-    cy.contains('会员详情').should('be.visible')
-    cy.contains('当前积分', { timeout: 15000 }).scrollIntoView().should('exist')
-    cy.contains('积分流水').scrollIntoView().should('exist')
+    // 独立的会员画像路由
+    cy.location('pathname', { timeout: 15000 }).should('match', /\/members\/\d+$/)
+    cy.get('[data-testid="member-profile"]', { timeout: 15000 }).should('be.visible')
+    cy.get('[data-testid="member-profile-level"]').should('be.visible')
+    cy.get('[data-testid="member-profile-transactions"]').should('exist')
   })
 })

@@ -16,9 +16,13 @@ import type {
   Member,
   MemberDetail,
   Message,
+  OfflineEvent,
+  OfflineEventDetail,
   Poster,
   ScoreRule,
   Template,
+  Webinar,
+  WebinarDetail,
 } from './types'
 
 export const api = axios.create({
@@ -295,8 +299,10 @@ export async function createPoster(body: {
 }
 
 // ---- Members ----
-export async function getMembers(): Promise<Member[]> {
-  const { data } = await api.get<Member[]>('/members')
+export async function getMembers(search?: string): Promise<Member[]> {
+  const { data } = await api.get<Member[]>('/members', {
+    params: search ? { search } : undefined,
+  })
   return data
 }
 
@@ -315,5 +321,81 @@ export async function adjustMemberPoints(
   body: { delta: number; reason: string }
 ): Promise<Member> {
   const { data } = await api.post<Member>(`/members/${customerId}/points`, body)
+  return data
+}
+
+// ---- Webinars ----
+export async function getWebinars(): Promise<Webinar[]> {
+  const { data } = await api.get<Webinar[]>('/webinars')
+  return data
+}
+
+export async function createWebinar(body: {
+  title: string
+  host?: string
+  scheduled_at?: string
+  channel_key?: string
+  form_id?: number
+}): Promise<Webinar> {
+  const { data } = await api.post<Webinar>('/webinars', body)
+  return data
+}
+
+export async function getWebinar(id: number): Promise<WebinarDetail> {
+  const { data } = await api.get<WebinarDetail>(`/webinars/${id}`)
+  return data
+}
+
+export async function patchWebinar(
+  id: number,
+  body: { status?: string; form_id?: number }
+): Promise<Webinar> {
+  const { data } = await api.patch<Webinar>(`/webinars/${id}`, body)
+  return data
+}
+
+export async function sendWebinarForm(
+  id: number,
+  body: { form_id?: number } = {}
+): Promise<WebinarDetail> {
+  const { data } = await api.post<WebinarDetail>(`/webinars/${id}/send-form`, body)
+  return data
+}
+
+// ---- Offline Events ----
+export async function getOfflineEvents(): Promise<OfflineEvent[]> {
+  const { data } = await api.get<OfflineEvent[]>('/offline-events')
+  return data
+}
+
+export async function createOfflineEvent(body: {
+  title: string
+  location?: string
+  scheduled_at?: string
+  landing_page_id?: number
+  poster_id?: number
+}): Promise<OfflineEvent> {
+  const { data } = await api.post<OfflineEvent>('/offline-events', body)
+  return data
+}
+
+export async function getOfflineEvent(id: number): Promise<OfflineEventDetail> {
+  const { data } = await api.get<OfflineEventDetail>(`/offline-events/${id}`)
+  return data
+}
+
+export async function patchOfflineEvent(
+  id: number,
+  body: { status?: string; landing_page_id?: number; poster_id?: number }
+): Promise<OfflineEvent> {
+  const { data } = await api.patch<OfflineEvent>(`/offline-events/${id}`, body)
+  return data
+}
+
+export async function checkinOfflineEvent(
+  id: number,
+  body: { customer_id?: number } = {}
+): Promise<OfflineEvent> {
+  const { data } = await api.post<OfflineEvent>(`/offline-events/${id}/checkin`, body)
   return data
 }
