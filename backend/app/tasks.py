@@ -13,13 +13,14 @@ import re
 from .celery_app import celery_app
 from .config import settings
 from .database import session_scope
+from .flow_engine import execute_flow
 from .membership import level_for
 from .models import (
-    Automation,
-    AutomationRun,
     Channel,
     Customer,
     Event,
+    Flow,
+    FlowRun,
     Member,
     Message,
     PointTransaction,
@@ -97,97 +98,19 @@ def _run_scoring(db, event: Event) -> list[dict]:
     return logs
 
 
-def _execute_actions(db, automation: Automation, event: Event) -> dict:
-    customer = db.get(Customer, event.customer_id) if event.customer_id else None
-    log: dict = {"actions": []}
-    if not customer:
-        return log
-
-    for action in automation.actions or []:
-        atype = action.get("type")
-        if atype == "add_tag":
-            tag = action.get("tag")
-            tags = list(customer.tags or [])
-            if tag and tag not in tags:
-                tags.append(tag)
-                customer.tags = tags
-            log["actions"].append({"add_tag": tag})
-
-        elif atype == "adjust_score":
-            pts = int(action.get("points", 0))
-            customer.score += pts
-            db.add(
-                ScoreLog(
-                    customer_id=customer.id,
-                    delta=pts,
-                    reason=f"自动化：{automation.name}",
-                    total_after=customer.score,
-                )
-            )
-            log["actions"].append({"adjust_score": pts})
-
-        elif atype == "set_stage":
-            customer.stage = action.get("stage", customer.stage)
-            log["actions"].append({"set_stage": customer.stage})
-
-        elif atype == "send_template":
-            template = None
-            tpl_id = action.get("template_id")
-            if tpl_id:
-                template = db.get(Template, tpl_id)
-            if template is None:
-                tpl_name = action.get("template")
-                if tpl_name:
-                    template = db.query(Template).filter(Template.name == tpl_name).first()
-
-            content = _render(template.content, customer) if template else action.get("content", "")
-            channel_key = event.channel_key or customer.source_channel
-            channel = db.query(Channel).filter(Channel.key == channel_key).first() if channel_key else None
-
-            out = Message(
-                customer_id=customer.id,
-                channel_id=channel.id if channel else None,
-                channel_key=channel_key,
-                direction="out",
-                content=content,
-                template_id=template.id if template else None,
-                status="queued",
-            )
-            db.add(out)
-            db.flush()
-            send_message.delay(out.id)
-            log["actions"].append({"send_template": template.name if template else "(inline)", "message_id": out.id})
-
-    return log
-
-
-def _run_automations(db, event: Event) -> list[dict]:
+def _run_flows(db, event: Event) -> list[dict]:
+    """Event-triggered automation: run every ACTIVE flow whose trigger node's event
+    matches this event, using the event's customer as context. This is the merged
+    automation engine — the canvas's deployed flows ARE the live automations."""
     results: list[dict] = []
-    automations = (
-        db.query(Automation)
-        .filter(Automation.enabled.is_(True), Automation.trigger_event == event.type)
-        .all()
-    )
-    customer = db.get(Customer, event.customer_id) if event.customer_id else None
-
-    for automation in automations:
-        # Simple condition support: { "min_score": N }
-        cond = automation.conditions or {}
-        min_score = cond.get("min_score")
-        if min_score is not None and (customer is None or customer.score < int(min_score)):
+    flows = db.query(Flow).filter(Flow.status == "active").all()
+    for flow in flows:
+        trigger = next((n for n in (flow.nodes or []) if n.get("type") == "trigger"), None)
+        if not trigger or (trigger.get("data") or {}).get("event") != event.type:
             continue
-
-        log = _execute_actions(db, automation, event)
-        run = AutomationRun(
-            automation_id=automation.id,
-            automation_name=automation.name,
-            customer_id=event.customer_id,
-            status="done",
-            log=log,
-        )
-        db.add(run)
-        results.append({"automation": automation.name, "log": log})
-
+        log, _ = execute_flow(db, flow, event.customer_id)
+        db.add(FlowRun(flow_id=flow.id, executor="event", status="success", log=log))
+        results.append({"flow": flow.name, "steps": len(log)})
     return results
 
 
@@ -201,7 +124,7 @@ def dispatch_event(event_id: int) -> dict:
 
         scoring = _run_scoring(db, event)
         membership = _run_membership(db, event)
-        automations = _run_automations(db, event)
+        flows = _run_flows(db, event)
 
     # AI suggestion runs in a SEPARATE transaction: the DeepSeek HTTP call can take
     # seconds, and we must not hold the scoring/automation transaction open that long
@@ -212,7 +135,7 @@ def dispatch_event(event_id: int) -> dict:
         if event:
             ai = _run_ai_suggestion(db, event)
 
-    return {"event": event_id, "scoring": scoring, "membership": membership, "automations": automations, "ai": ai}
+    return {"event": event_id, "scoring": scoring, "membership": membership, "flows": flows, "ai": ai}
 
 
 def _run_membership(db, event: Event) -> dict:

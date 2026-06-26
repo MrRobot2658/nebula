@@ -15,7 +15,6 @@ import {
   Target,
   Users,
   Video,
-  Workflow,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
@@ -57,10 +56,7 @@ const groups: NavGroup[] = [
   },
   {
     title: '自动化',
-    items: [
-      { to: '/automations', label: '自动化流程', icon: Workflow },
-      { to: '/scoring', label: '评分模型', icon: Target },
-    ],
+    items: [{ to: '/scoring', label: '评分模型', icon: Target }],
   },
   {
     title: '增长',
@@ -76,7 +72,7 @@ const groups: NavGroup[] = [
     items: [
       { to: '/webinars', label: '线上直播', icon: Video },
       { to: '/offline-events', label: '线下会议', icon: CalendarDays },
-      { to: '/flows', label: '自动化画布', icon: GitBranch },
+      { to: '/flows', label: '自动化', icon: GitBranch },
     ],
   },
   {

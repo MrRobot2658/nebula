@@ -6,10 +6,16 @@ import type { Flow } from '../api/types'
 import PageHeader from '../components/PageHeader'
 import Card from '../components/Card'
 import Button from '../components/Button'
-import Badge, { statusTone } from '../components/Badge'
+import Badge from '../components/Badge'
 import { EmptyRow, Table } from '../components/Table'
 import { Loading } from '../components/States'
 import { formatDateTime } from '../lib/format'
+
+export function flowStatusInfo(status: string): { tone: 'green' | 'slate'; label: string } {
+  return status === 'active'
+    ? { tone: 'green', label: '已部署' }
+    : { tone: 'slate', label: '草稿' }
+}
 
 export default function Flows() {
   const navigate = useNavigate()
@@ -84,7 +90,9 @@ export default function Flows() {
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <Badge tone={statusTone(f.status)}>{f.status}</Badge>
+                    <Badge tone={flowStatusInfo(f.status).tone}>
+                      {flowStatusInfo(f.status).label}
+                    </Badge>
                   </td>
                   <td className="px-4 py-3 text-slate-500">{f.nodes?.length ?? 0}</td>
                   <td className="px-4 py-3 text-xs text-slate-400">

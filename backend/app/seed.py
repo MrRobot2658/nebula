@@ -4,7 +4,6 @@ import uuid
 from .database import session_scope
 from .membership import level_for
 from .models import (
-    Automation,
     Campaign,
     Channel,
     Customer,
@@ -79,32 +78,7 @@ def seed_if_empty() -> bool:
         )
 
         # Automations
-        db.add(
-            Automation(
-                name="新客欢迎流程",
-                enabled=True,
-                trigger_event="message_received",
-                conditions={},
-                actions=[
-                    {"type": "send_template", "template": "新客欢迎"},
-                    {"type": "add_tag", "tag": "已互动"},
-                    {"type": "adjust_score", "points": 5},
-                ],
-            )
-        )
-        db.add(
-            Automation(
-                name="高意向客户跟进",
-                enabled=True,
-                trigger_event="score.threshold_reached",
-                conditions={},
-                actions=[
-                    {"type": "add_tag", "tag": "高意向"},
-                    {"type": "set_stage", "stage": "engaged"},
-                    {"type": "send_template", "template": "高意向跟进"},
-                ],
-            )
-        )
+        # Automations are now modeled as canvas Flows — see seed_features().
 
         # Campaign
         db.add(Campaign(name="夏日促销", status="running", channel_key="wechat", stats={"reach": 1280, "conversion": 86}))
@@ -223,26 +197,54 @@ def seed_features() -> None:
                             Order(customer_id=customer.id, amount=o["amount"], items=o["items"], status="paid")
                         )
 
+        # Flush so later blocks (webinar/offline) can resolve form/landing/poster by query.
+        db.flush()
+
         if db.query(Flow).count() == 0:
+            # 新客欢迎流程（已部署 / active）：收到消息事件自动触发，含 AB 实验分支。
             db.add(
                 Flow(
-                    name="新客欢迎 + AB 测试",
+                    name="新客欢迎流程",
                     status="active",
                     nodes=[
-                        {"id": "n1", "type": "trigger", "position": {"x": 80, "y": 40}, "data": {"event": "message_received"}},
-                        {"id": "n2", "type": "condition", "position": {"x": 80, "y": 160}, "data": {"field": "score", "op": ">=", "value": "60"}},
-                        {"id": "n3", "type": "abtest", "position": {"x": 80, "y": 280}, "data": {"variants": [{"key": "A", "weight": 50}, {"key": "B", "weight": 50}]}},
-                        {"id": "n4", "type": "action", "position": {"x": -80, "y": 400}, "data": {"action": "send_template", "template": "新客欢迎"}},
-                        {"id": "n5", "type": "action", "position": {"x": 240, "y": 400}, "data": {"action": "adjust_score", "points": 5}},
-                        {"id": "n6", "type": "end", "position": {"x": 80, "y": 520}, "data": {}},
+                        {"id": "n1", "type": "trigger", "position": {"x": 120, "y": 0}, "data": {"event": "message_received"}},
+                        {"id": "n2", "type": "action", "position": {"x": 120, "y": 110}, "data": {"action": "add_tag", "tag": "已互动"}},
+                        {"id": "n3", "type": "action", "position": {"x": 120, "y": 220}, "data": {"action": "adjust_score", "points": 5}},
+                        {"id": "n4", "type": "action", "position": {"x": 120, "y": 330}, "data": {"action": "send_template", "template": "新客欢迎"}},
+                        {"id": "n5", "type": "abtest", "position": {"x": 120, "y": 440}, "data": {"variants": [{"key": "A", "weight": 50}, {"key": "B", "weight": 50}]}},
+                        {"id": "n6", "type": "action", "position": {"x": 0, "y": 560}, "data": {"action": "add_tag", "tag": "实验组A"}},
+                        {"id": "n7", "type": "action", "position": {"x": 260, "y": 560}, "data": {"action": "add_tag", "tag": "实验组B"}},
+                        {"id": "n8", "type": "end", "position": {"x": 120, "y": 680}, "data": {}},
                     ],
                     edges=[
                         {"id": "e1", "source": "n1", "target": "n2", "sourceHandle": None, "label": None},
-                        {"id": "e2", "source": "n2", "target": "n3", "sourceHandle": "true", "label": "是"},
-                        {"id": "e3", "source": "n3", "target": "n4", "sourceHandle": "A", "label": "A"},
-                        {"id": "e4", "source": "n3", "target": "n5", "sourceHandle": "B", "label": "B"},
-                        {"id": "e5", "source": "n4", "target": "n6", "sourceHandle": None, "label": None},
-                        {"id": "e6", "source": "n5", "target": "n6", "sourceHandle": None, "label": None},
+                        {"id": "e2", "source": "n2", "target": "n3", "sourceHandle": None, "label": None},
+                        {"id": "e3", "source": "n3", "target": "n4", "sourceHandle": None, "label": None},
+                        {"id": "e4", "source": "n4", "target": "n5", "sourceHandle": None, "label": None},
+                        {"id": "e5", "source": "n5", "target": "n6", "sourceHandle": "A", "label": "A"},
+                        {"id": "e6", "source": "n5", "target": "n7", "sourceHandle": "B", "label": "B"},
+                        {"id": "e7", "source": "n6", "target": "n8", "sourceHandle": None, "label": None},
+                        {"id": "e8", "source": "n7", "target": "n8", "sourceHandle": None, "label": None},
+                    ],
+                )
+            )
+            # 高意向客户跟进（已部署）：评分达阈值事件自动触发。
+            db.add(
+                Flow(
+                    name="高意向客户跟进",
+                    status="active",
+                    nodes=[
+                        {"id": "m1", "type": "trigger", "position": {"x": 120, "y": 0}, "data": {"event": "score.threshold_reached"}},
+                        {"id": "m2", "type": "action", "position": {"x": 120, "y": 110}, "data": {"action": "add_tag", "tag": "高意向"}},
+                        {"id": "m3", "type": "action", "position": {"x": 120, "y": 220}, "data": {"action": "set_stage", "stage": "engaged"}},
+                        {"id": "m4", "type": "action", "position": {"x": 120, "y": 330}, "data": {"action": "send_template", "template": "高意向跟进"}},
+                        {"id": "m5", "type": "end", "position": {"x": 120, "y": 440}, "data": {}},
+                    ],
+                    edges=[
+                        {"id": "f1", "source": "m1", "target": "m2", "sourceHandle": None, "label": None},
+                        {"id": "f2", "source": "m2", "target": "m3", "sourceHandle": None, "label": None},
+                        {"id": "f3", "source": "m3", "target": "m4", "sourceHandle": None, "label": None},
+                        {"id": "f4", "source": "m4", "target": "m5", "sourceHandle": None, "label": None},
                     ],
                 )
             )

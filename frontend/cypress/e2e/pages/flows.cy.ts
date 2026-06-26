@@ -22,6 +22,13 @@ describe('自动化画布', () => {
     // 保存
     cy.get('[data-testid="save-flow-button"]').click()
 
+    // 部署 → 状态徽标显示「已部署」
+    cy.get('[data-testid="deploy-flow-button"]').click()
+    cy.get('[data-testid="flow-status-badge"]', { timeout: 15000 }).should(
+      'contain.text',
+      '已部署'
+    )
+
     // 运行 → 执行日志至少 1 条
     cy.get('[data-testid="run-flow-button"]').click()
     cy.get('[data-testid="flow-run-log"]', { timeout: 15000 })

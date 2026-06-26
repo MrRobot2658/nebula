@@ -62,6 +62,11 @@ def _do_action(db, customer, data) -> str:
             customer.score += pts
             db.add(ScoreLog(customer_id=customer.id, delta=pts, reason="流程动作", total_after=customer.score))
         return ("（模拟）" if sim else "") + f"评分 {'+' if pts >= 0 else ''}{pts}"
+    if action == "set_stage":
+        stage = data.get("stage", "")
+        if customer and stage:
+            customer.stage = stage
+        return ("（模拟）" if sim else "") + f"设置阶段「{stage}」"
     if action == "send_template":
         name = data.get("template", "")
         tpl = db.query(Template).filter(Template.name == name).first() if name else None

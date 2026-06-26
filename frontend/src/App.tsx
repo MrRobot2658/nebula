@@ -8,7 +8,6 @@ import Channels from './pages/Channels'
 import ChannelDetail from './pages/ChannelDetail'
 import Templates from './pages/Templates'
 import Campaigns from './pages/Campaigns'
-import Automations from './pages/Automations'
 import Scoring from './pages/Scoring'
 import Events from './pages/Events'
 import Forms from './pages/Forms'
@@ -34,7 +33,6 @@ export default function App() {
           <Route path="/channels/:key" element={<ChannelDetail />} />
           <Route path="/templates" element={<Templates />} />
           <Route path="/campaigns" element={<Campaigns />} />
-          <Route path="/automations" element={<Automations />} />
           <Route path="/scoring" element={<Scoring />} />
           <Route path="/events" element={<Events />} />
           <Route path="/forms" element={<Forms />} />

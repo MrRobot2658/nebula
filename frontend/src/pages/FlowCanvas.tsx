@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { ArrowLeft, Play, Plus, Save, Trash2 } from 'lucide-react'
+import { ArrowLeft, Play, Plus, Rocket, Save, Trash2 } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 import ReactFlow, {
   addEdge,
@@ -73,9 +73,11 @@ function FlowEditor() {
   const [nodes, setNodes, onNodesChange] = useNodesState([])
   const [edges, setEdges, onEdgesChange] = useEdgesState([])
   const [flowName, setFlowName] = useState('')
+  const [status, setStatus] = useState('draft')
   const [loading, setLoading] = useState(true)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  const [deploying, setDeploying] = useState(false)
   const [running, setRunning] = useState(false)
   const [run, setRun] = useState<FlowRun | null>(null)
   const [runs, setRuns] = useState<FlowRun[]>([])
@@ -96,6 +98,7 @@ function FlowEditor() {
     getFlow(flowId)
       .then((flow) => {
         setFlowName(flow.name)
+        setStatus(flow.status)
         setNodes(
           (flow.nodes ?? []).map((n) => ({
             id: n.id,
@@ -185,25 +188,44 @@ function FlowEditor() {
     setSelectedId(null)
   }
 
+  const buildNodes = (): FlowNode[] =>
+    nodes.map((n) => ({
+      id: n.id,
+      type: n.type as FlowNodeType,
+      position: n.position,
+      data: n.data,
+    }))
+
+  const buildEdges = (): FlowEdge[] =>
+    edges.map((e) => ({
+      id: e.id,
+      source: e.source,
+      target: e.target,
+      sourceHandle: e.sourceHandle ?? null,
+      label: typeof e.label === 'string' ? e.label : undefined,
+    }))
+
   const handleSave = async () => {
     setSaving(true)
     try {
-      const flowNodes: FlowNode[] = nodes.map((n) => ({
-        id: n.id,
-        type: n.type as FlowNodeType,
-        position: n.position,
-        data: n.data,
-      }))
-      const flowEdges: FlowEdge[] = edges.map((e) => ({
-        id: e.id,
-        source: e.source,
-        target: e.target,
-        sourceHandle: e.sourceHandle ?? null,
-        label: typeof e.label === 'string' ? e.label : undefined,
-      }))
-      await saveFlow(flowId, { name: flowName, nodes: flowNodes, edges: flowEdges })
+      await saveFlow(flowId, { name: flowName, nodes: buildNodes(), edges: buildEdges() })
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleDeploy = async () => {
+    const next = status === 'active' ? 'draft' : 'active'
+    setDeploying(true)
+    try {
+      const updated = await saveFlow(flowId, {
+        status: next,
+        nodes: buildNodes(),
+        edges: buildEdges(),
+      })
+      setStatus(updated.status)
+    } finally {
+      setDeploying(false)
     }
   }
 
@@ -232,9 +254,11 @@ function FlowEditor() {
     )
   }
 
+  const deployed = status === 'active'
+
   return (
     <div>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <Link
             to="/flows"
@@ -247,8 +271,19 @@ function FlowEditor() {
             onChange={(e) => setFlowName(e.target.value)}
             className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-700 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
           />
+          <Badge tone={deployed ? 'green' : 'slate'}>
+            <span data-testid="flow-status-badge">{deployed ? '已部署' : '草稿'}</span>
+          </Badge>
         </div>
         <div className="flex items-center gap-2">
+          <Button
+            variant={deployed ? 'secondary' : 'primary'}
+            data-testid="deploy-flow-button"
+            onClick={handleDeploy}
+            disabled={deploying}
+          >
+            <Rocket size={15} /> {deploying ? '处理中…' : deployed ? '取消部署' : '部署'}
+          </Button>
           <Button variant="secondary" data-testid="save-flow-button" onClick={handleSave} disabled={saving}>
             <Save size={15} /> {saving ? '保存中…' : '保存'}
           </Button>
@@ -257,6 +292,9 @@ function FlowEditor() {
           </Button>
         </div>
       </div>
+      <p className="mb-4 text-xs text-slate-400">
+        已部署的流程会在其触发节点的事件发生时自动执行（无需手动点运行）。
+      </p>
 
       <div className="flex flex-col gap-4 xl:flex-row">
         {/* Palette */}

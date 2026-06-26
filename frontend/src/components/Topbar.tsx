@@ -9,7 +9,6 @@ const titles: { match: (p: string) => boolean; title: string }[] = [
   { match: (p) => p.startsWith('/channels'), title: '渠道接入' },
   { match: (p) => p.startsWith('/templates'), title: '模板库' },
   { match: (p) => p.startsWith('/campaigns'), title: '营销活动' },
-  { match: (p) => p.startsWith('/automations'), title: '自动化流程' },
   { match: (p) => p.startsWith('/scoring'), title: '评分模型' },
   { match: (p) => p.startsWith('/events'), title: '事件流' },
   { match: (p) => p.startsWith('/forms'), title: '表单' },
@@ -19,8 +18,8 @@ const titles: { match: (p: string) => boolean; title: string }[] = [
   { match: (p) => p.startsWith('/members'), title: '会员' },
   { match: (p) => p.startsWith('/webinars'), title: '线上直播' },
   { match: (p) => p.startsWith('/offline-events'), title: '线下会议' },
-  { match: (p) => /^\/flows\/\d+/.test(p), title: '自动化画布编辑器' },
-  { match: (p) => p.startsWith('/flows'), title: '自动化画布' },
+  { match: (p) => /^\/flows\/\d+/.test(p), title: '自动化编辑器' },
+  { match: (p) => p.startsWith('/flows'), title: '自动化' },
 ]
 
 export default function Topbar() {
