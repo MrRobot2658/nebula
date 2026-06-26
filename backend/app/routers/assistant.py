@@ -49,15 +49,14 @@ def _find_customer_by_name(db: Session, text: str) -> Optional[Customer]:
 def chat(payload: AssistantChatRequest, db: Session = Depends(get_db)):
     last_user = next((m.content for m in reversed(payload.messages) if m.role == "user"), "")
 
-    # "查看 王五 的详情" -> 直接打开会员详情页
+    # "查看 王五 的详情" -> 在对话中内联展示该客户的会员详情卡片
     if any(k in last_user for k in _DETAIL_KW):
         customer = _find_customer_by_name(db, last_user)
         if customer:
             return AssistantChatResponse(
-                reply=f"已为你打开 {customer.name} 的会员详情。",
-                intent="navigate",
-                views=[],
-                navigate=NavigateTarget(path=f"/members/{customer.id}", label=f"{customer.name} · 会员详情"),
+                reply=f"这是 {customer.name} 的会员详情。",
+                intent="profile",
+                views=[{"type": "profile", "customer_id": customer.id}],
             )
 
     reply, views = route_message(last_user)

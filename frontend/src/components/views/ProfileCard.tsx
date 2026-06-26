@@ -29,7 +29,7 @@ export default function ProfileCard({ customer_id }: { customer_id: number }) {
     <CardShell
       testId="view-profile"
       icon={<UserSearch size={15} />}
-      title={data ? `${data.customer.name} · 客户画像` : '客户画像'}
+      title={data ? `${data.customer.name} · ${data.member ? '会员详情' : '客户画像'}` : '客户画像'}
       subtitle={data?.customer.oneid}
       openTo={`/customers/${customer_id}`}
       loading={loading}
@@ -92,6 +92,47 @@ export default function ProfileCard({ customer_id }: { customer_id: number }) {
               </div>
             )}
           </div>
+
+          {data.member && (
+            <div className="rounded-lg border border-amber-100 bg-amber-50/60 px-3 py-2" data-testid="profile-member">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-medium text-amber-700">会员 · {data.member.level}</span>
+                <span className="text-slate-500">{data.member.points} 积分</span>
+              </div>
+              {data.member.next_level && (
+                <div className="mt-1.5">
+                  <div className="flex justify-between text-[11px] text-slate-400">
+                    <span>距 {data.member.next_level}</span>
+                    <span>还需 {data.member.points_to_next}</span>
+                  </div>
+                  <div className="mt-0.5 h-1.5 w-full overflow-hidden rounded-full bg-amber-100">
+                    <div
+                      className="h-full rounded-full bg-amber-400"
+                      style={{
+                        width: `${Math.round(
+                          (data.member.points / (data.member.points + data.member.points_to_next || 1)) * 100
+                        )}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+              {data.member.transactions.length > 0 && (
+                <div className="mt-2 space-y-0.5">
+                  <div className="text-[11px] font-medium text-slate-400">积分流水</div>
+                  {data.member.transactions.slice(0, 3).map((t) => (
+                    <div key={t.id} className="flex items-center justify-between text-[11px]">
+                      <span className="truncate text-slate-500">{t.reason}</span>
+                      <span className={t.delta >= 0 ? 'text-emerald-600' : 'text-rose-600'}>
+                        {t.delta >= 0 ? '+' : ''}
+                        {t.delta}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {recentMessages.length > 0 && (
             <div>

@@ -25,11 +25,12 @@ describe('ChatApp 对话式工作台', () => {
     cy.get('[data-testid="view-flows"]', { timeout: 25000 }).scrollIntoView().should('exist')
   })
 
-  it('查看某客户详情 → 直接跳转会员详情页', () => {
+  it('查看某客户详情 → 对话内联展示会员详情卡片（不跳转）', () => {
     cy.visit('/')
     cy.get('[data-testid="chat-input"]', { timeout: 15000 }).type('查看 王五 的详情')
     cy.get('[data-testid="chat-send"]').click()
-    cy.location('pathname', { timeout: 20000 }).should('match', /\/members\/\d+$/)
-    cy.get('[data-testid="member-profile"]', { timeout: 15000 }).should('exist')
+    cy.get('[data-testid="view-profile"]', { timeout: 25000 }).scrollIntoView().should('exist')
+    cy.get('[data-testid="profile-member"]', { timeout: 15000 }).should('exist')
+    cy.location('pathname').should('eq', '/') // 始终留在对话页
   })
 })
