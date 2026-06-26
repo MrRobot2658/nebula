@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowUp, Sparkles } from 'lucide-react'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { assistantChat } from '../api/client'
 import type { AssistantChatMessage } from '../api/types'
 import {
@@ -29,6 +29,7 @@ function todayText(): string {
 
 export default function ChatHome() {
   const [params, setParams] = useSearchParams()
+  const navigate = useNavigate()
   const sessionParam = params.get('session')
   const newParam = params.get('new')
 
@@ -92,6 +93,8 @@ export default function ChatHome() {
       const afterAi = [...afterUser, aiMsg]
       setMessages(afterAi)
       persist(afterAi, title)
+      // Assistant may request a page jump (e.g. 查看王五的详情 -> 会员详情页)
+      if (res.navigate?.path) navigate(res.navigate.path)
     } catch {
       const aiMsg: ChatMessage = {
         id: newId('m'),

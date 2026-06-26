@@ -142,6 +142,23 @@ class ApiTestCase(unittest.TestCase):
         self.assertEqual(prof["views"][0]["customer_id"], 100002)
         self.assertEqual(views_for("你好")["views"], [])  # 无匹配 -> 仅回复
 
+    def test_assistant_name_navigates_to_member(self):
+        wang = self.client.get("/api/customers", params={"search": "王五"}).json()
+        self.assertTrue(wang, "seeded 王五 should exist")
+        cid = wang[0]["id"]
+        r = self.client.post(
+            "/api/assistant/chat",
+            json={"messages": [{"role": "user", "content": "查看 王五 的详情"}]},
+        ).json()
+        self.assertEqual(r["intent"], "navigate")
+        self.assertEqual(r["navigate"]["path"], f"/members/{cid}")
+        # 泛指「会员」无姓名 -> 仍是列表，不跳转
+        r2 = self.client.post(
+            "/api/assistant/chat", json={"messages": [{"role": "user", "content": "看看会员"}]}
+        ).json()
+        self.assertIsNone(r2["navigate"])
+        self.assertEqual(r2["views"][0]["type"], "members")
+
     # ---- AI endpoint (fallback, no key in tests) ----
     def test_ai_suggest_fallback(self):
         r = self.client.post("/api/ai/suggest", json={"content": "这款多少钱？"})

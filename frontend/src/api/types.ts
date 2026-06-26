@@ -374,4 +374,5 @@ export interface AssistantChatResponse {
   reply: string
   intent: string
   views: ChatView[]
+  navigate?: { path: string; label?: string } | null
 }
