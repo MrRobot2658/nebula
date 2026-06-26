@@ -3,3 +3,14 @@ node_modules/
 *.log
 .env
 .vercel
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# Frontend build
+dist/
+.vite/
