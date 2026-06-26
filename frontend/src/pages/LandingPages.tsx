@@ -2,15 +2,17 @@ import { useEffect, useState } from 'react'
 import { Eye, Plus } from 'lucide-react'
 import {
   createLandingPage,
+  getForm,
   getLandingPage,
   getLandingPages,
   viewLandingPage,
 } from '../api/client'
-import type { LandingPage } from '../api/types'
+import type { Form as FormType, LandingPage } from '../api/types'
 import PageHeader from '../components/PageHeader'
 import Button from '../components/Button'
 import Badge, { statusTone } from '../components/Badge'
 import Modal from '../components/Modal'
+import FormRenderer from '../components/FormRenderer'
 import { EmptyState, Loading } from '../components/States'
 import { formatDateTime } from '../lib/format'
 
@@ -19,6 +21,9 @@ export default function LandingPages() {
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState<LandingPage | null>(null)
   const [detailOpen, setDetailOpen] = useState(false)
+  const [previewOpen, setPreviewOpen] = useState(false)
+  const [previewPage, setPreviewPage] = useState<LandingPage | null>(null)
+  const [previewForm, setPreviewForm] = useState<FormType | null>(null)
   const [open, setOpen] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [recording, setRecording] = useState(false)
@@ -39,6 +44,17 @@ export default function LandingPages() {
     getLandingPage(id)
       .then(setSelected)
       .catch(() => undefined)
+  }
+
+  const openPreview = (page: LandingPage) => {
+    setPreviewPage(page)
+    setPreviewForm(null)
+    setPreviewOpen(true)
+    if (page.form_id != null) {
+      getForm(page.form_id)
+        .then(setPreviewForm)
+        .catch(() => setPreviewForm(null))
+    }
   }
 
   const submit = async () => {
@@ -112,27 +128,40 @@ export default function LandingPages() {
                 </span>
               </div>
 
-              <div className="mt-auto pt-4 flex items-center justify-between">
+              <div className="mt-auto pt-4 flex items-center justify-between gap-2">
                 <span className="text-xs text-slate-400">{formatDateTime(p.created_at)}</span>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  data-testid="card-record-view"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    recordView(p)
-                  }}
-                  disabled={recording}
-                >
-                  <Eye size={14} /> 记录访问
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    data-testid="preview-landing-button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      openPreview(p)
+                    }}
+                  >
+                    <Eye size={14} /> 预览
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    data-testid="card-record-view"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      recordView(p)
+                    }}
+                    disabled={recording}
+                  >
+                    <Eye size={14} /> 记录访问
+                  </Button>
+                </div>
               </div>
             </div>
           ))}
         </div>
       )}
 
-      <Modal open={detailOpen} onClose={() => setDetailOpen(false)} title="落地页预览">
+      <Modal open={detailOpen} onClose={() => setDetailOpen(false)} title="落地页详情">
         {!selected ? (
           <Loading />
         ) : (
@@ -148,7 +177,7 @@ export default function LandingPages() {
                 立即咨询
               </button>
             </div>
-            <div className="mt-4 flex items-center justify-between">
+            <div className="mt-4 flex items-center justify-between gap-2">
               <div className="text-sm text-slate-500">
                 浏览量：
                 <span
@@ -158,19 +187,69 @@ export default function LandingPages() {
                   {selected.views}
                 </span>
               </div>
-              <Button
-                variant="secondary"
-                size="sm"
-                data-testid="record-view-button"
-                onClick={() => recordView(selected)}
-                disabled={recording}
-              >
-                <Eye size={14} /> 记录访问
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  data-testid="preview-landing-button"
+                  onClick={() => openPreview(selected)}
+                >
+                  <Eye size={14} /> 预览
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  data-testid="record-view-button"
+                  onClick={() => recordView(selected)}
+                  disabled={recording}
+                >
+                  <Eye size={14} /> 记录访问
+                </Button>
+              </div>
             </div>
             <div className="mt-2 text-xs text-slate-400">
               创建于 {formatDateTime(selected.created_at)}
             </div>
+          </div>
+        )}
+      </Modal>
+
+      <Modal open={previewOpen} onClose={() => setPreviewOpen(false)} title="预览模式">
+        {!previewPage ? (
+          <Loading />
+        ) : (
+          <div data-testid="landing-preview">
+            <div className="rounded-2xl bg-gradient-to-br from-brand-50 via-white to-indigo-50 border border-brand-100 px-6 py-10 text-center">
+              <h1 className="text-2xl font-bold text-slate-900">
+                {previewPage.headline || previewPage.title}
+              </h1>
+              {previewPage.headline && previewPage.title !== previewPage.headline ? (
+                <div className="mt-1 text-sm font-medium text-brand-600">
+                  {previewPage.title}
+                </div>
+              ) : null}
+              <p className="mx-auto mt-4 max-w-md text-sm text-slate-600 whitespace-pre-wrap leading-relaxed">
+                {previewPage.body || '暂无正文内容'}
+              </p>
+              <button className="mt-6 inline-flex items-center rounded-lg bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-700">
+                立即领取
+              </button>
+            </div>
+
+            {previewPage.form_id != null ? (
+              <div className="mt-5 rounded-2xl border border-slate-200 p-5">
+                <div className="mb-3 text-sm font-semibold text-slate-700">填写信息，立即咨询</div>
+                {previewForm ? (
+                  <FormRenderer
+                    form={previewForm}
+                    testId="landing-preview-form"
+                    submitTestId="landing-preview-submit"
+                  />
+                ) : (
+                  <Loading text="加载表单中…" />
+                )}
+              </div>
+            ) : null}
           </div>
         )}
       </Modal>

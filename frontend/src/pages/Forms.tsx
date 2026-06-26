@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
-import { FileText, Plus, Send, Trash2 } from 'lucide-react'
+import { Eye, FileText, Plus, Send, Trash2 } from 'lucide-react'
 import { createForm, getForm, getForms, submitForm } from '../api/client'
 import type { FormDetail, FormField, Form as FormType } from '../api/types'
 import PageHeader from '../components/PageHeader'
 import Button from '../components/Button'
 import Badge from '../components/Badge'
 import Modal from '../components/Modal'
+import FormRenderer from '../components/FormRenderer'
 import { EmptyState, Loading } from '../components/States'
 import { formatDateTime } from '../lib/format'
 
@@ -23,6 +24,8 @@ export default function Forms() {
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState<FormDetail | null>(null)
   const [detailOpen, setDetailOpen] = useState(false)
+  const [previewOpen, setPreviewOpen] = useState(false)
+  const [previewForm, setPreviewForm] = useState<FormType | null>(null)
   const [loadingDetail, setLoadingDetail] = useState(false)
   const [open, setOpen] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -51,6 +54,11 @@ export default function Forms() {
       .then(setSelected)
       .catch(() => setSelected(null))
       .finally(() => setLoadingDetail(false))
+  }
+
+  const openPreview = (form: FormType) => {
+    setPreviewForm(form)
+    setPreviewOpen(true)
   }
 
   const addField = () =>
@@ -143,19 +151,32 @@ export default function Forms() {
                 </span>
               </div>
 
-              <div className="mt-auto pt-4 flex items-center justify-between">
+              <div className="mt-auto pt-4 flex items-center justify-between gap-2">
                 <span className="text-xs text-slate-400">{formatDateTime(f.created_at)}</span>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    simulate(f)
-                  }}
-                  disabled={simulating}
-                >
-                  <Send size={13} /> {simulating ? '提交中…' : '模拟提交'}
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    data-testid="preview-form-button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      openPreview(f)
+                    }}
+                  >
+                    <Eye size={13} /> 预览
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      simulate(f)
+                    }}
+                    disabled={simulating}
+                  >
+                    <Send size={13} /> {simulating ? '提交中…' : '模拟提交'}
+                  </Button>
+                </div>
               </div>
             </div>
           ))}
@@ -173,16 +194,26 @@ export default function Forms() {
           <EmptyState text="加载失败" />
         ) : (
           <div>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <div className="font-medium text-slate-800">{selected.name}</div>
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={() => simulate(selected)}
-                disabled={simulating}
-              >
-                <Send size={13} /> {simulating ? '提交中…' : '模拟提交'}
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  data-testid="preview-form-button"
+                  onClick={() => openPreview(selected)}
+                >
+                  <Eye size={13} /> 预览
+                </Button>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => simulate(selected)}
+                  disabled={simulating}
+                >
+                  <Send size={13} /> {simulating ? '提交中…' : '模拟提交'}
+                </Button>
+              </div>
             </div>
 
             <div className="mt-3 text-xs font-medium text-slate-400">字段</div>
@@ -214,6 +245,18 @@ export default function Forms() {
               )}
             </div>
           </div>
+        )}
+      </Modal>
+
+      <Modal
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        title="表单预览"
+      >
+        {previewForm ? (
+          <FormRenderer form={previewForm} />
+        ) : (
+          <EmptyState text="无可预览的表单" />
         )}
       </Modal>
 

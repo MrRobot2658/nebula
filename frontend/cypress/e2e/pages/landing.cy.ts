@@ -34,4 +34,32 @@ describe('落地页', () => {
           })
       })
   })
+
+  it('预览模式：以访客视角渲染落地页', () => {
+    cy.visit('/landing-pages')
+
+    cy.get('[data-testid="landing-row"]', { timeout: 15000 })
+      .its('length')
+      .should('be.greaterThan', 0)
+
+    // 记录第一个落地页标题，打开预览
+    cy.get('[data-testid="landing-row"]')
+      .first()
+      .find('.font-medium')
+      .first()
+      .invoke('text')
+      .then((heading) => {
+        cy.get('[data-testid="preview-landing-button"]', { timeout: 15000 })
+          .first()
+          .click()
+
+        cy.get('[data-testid="landing-preview"]', { timeout: 15000 }).should('be.visible')
+        cy.get('[data-testid="landing-preview"]')
+          .find('h1')
+          .invoke('text')
+          .should('have.length.greaterThan', 0)
+        // 展示标题/headline 文案
+        cy.get('[data-testid="landing-preview"]').should('contain.text', heading.trim())
+      })
+  })
 })
