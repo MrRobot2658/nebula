@@ -31,7 +31,8 @@ vercel.json          静态站路由：/ → 官网，/docs → 产品文档
 | --- | --- |
 | 前端 | React 18 · TypeScript · Vite · Tailwind（TailAdmin 风格）· Recharts |
 | 后端 | FastAPI · SQLAlchemy 2 · Pydantic v2 |
-| 异步 | Celery（Redis broker）—— 评分 / 自动化 / AI 异步消费事件总线 |
+| 异步 | Celery（Redis broker，并发 6）—— 评分 / 自动化 / AI 异步消费事件总线 |
+| 编排引擎 | Apache Airflow（LocalExecutor + Postgres）执行自动化流程，REST 触发 `nebula_flow_runner` DAG；不可达时回退本地执行 |
 | 存储 | MySQL 8（业务数据）· Redis 7（broker / result） |
 | LLM | DeepSeek（`deepseek-chat`，OpenAI 兼容；失败回退本地启发式） |
 | 编排 | Docker Compose |
@@ -53,6 +54,7 @@ docker compose up -d --build
 | Swagger UI | http://localhost:8000/docs |
 | ReDoc | http://localhost:8000/redoc |
 | 公开落地页（示例） | http://localhost:8000/l/summer-launch |
+| Airflow（自动化执行） | http://localhost:8090 （admin / admin） |
 | MySQL | localhost:3306（nebula / nebula） |
 | Redis | localhost:6379 |
 

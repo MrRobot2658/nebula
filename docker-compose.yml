@@ -55,7 +55,7 @@ services:
   worker:
     build: ./backend
     image: nebula-backend
-    command: celery -A app.celery_app.celery_app worker --loglevel=info
+    command: celery -A app.celery_app.celery_app worker --loglevel=info --concurrency=6
     env_file:
       - .env
     environment:
@@ -81,15 +81,36 @@ services:
       backend:
         condition: service_started
 
+  # Airflow metadata DB (Postgres) — enables LocalExecutor (parallel task runs).
+  airflow-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - airflow_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
   # Airflow runs Nebula automation flows. The backend triggers the nebula_flow_runner
   # DAG via REST; if Airflow is unreachable it falls back to local execution, so the
-  # app works even before Airflow finishes booting.
+  # app works even before Airflow finishes booting. LocalExecutor + Postgres runs
+  # tasks in parallel so Airflow and the rest of the stack run stably together.
   airflow:
     image: apache/airflow:2.10.3
+    depends_on:
+      airflow-db:
+        condition: service_healthy
     environment:
-      AIRFLOW__CORE__EXECUTOR: SequentialExecutor
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow-db:5432/airflow
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
       AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "false"
+      AIRFLOW__CORE__PARALLELISM: "8"
       AIRFLOW__API__AUTH_BACKENDS: airflow.api.auth.backend.basic_auth
       AIRFLOW__WEBSERVER__SECRET_KEY: nebula-secret
       NEBULA_API_BASE: http://backend:8000
@@ -104,3 +125,4 @@ services:
 
 volumes:
   dbdata:
+  airflow_pgdata:
