@@ -126,6 +126,22 @@ class ApiTestCase(unittest.TestCase):
         runs = self.client.get("/api/automations/runs")
         self.assertEqual(runs.status_code, 200)
 
+    # ---- assistant: message -> inline views ----
+    def test_assistant_chat_views(self):
+        def views_for(text):
+            r = self.client.post("/api/assistant/chat", json={"messages": [{"role": "user", "content": text}]})
+            self.assertEqual(r.status_code, 200)
+            return r.json()
+
+        self.assertEqual(views_for("看看客户")["views"][0]["type"], "customers")
+        self.assertEqual(views_for("打开渠道")["views"][0]["type"], "channels")
+        self.assertEqual(views_for("跑一下自动化流程")["views"][0]["type"], "flows")
+        self.assertEqual(views_for("看板指标")["views"][0]["type"], "dashboard")
+        prof = views_for("查看客户 100002 的画像")
+        self.assertEqual(prof["views"][0]["type"], "profile")
+        self.assertEqual(prof["views"][0]["customer_id"], 100002)
+        self.assertEqual(views_for("你好")["views"], [])  # 无匹配 -> 仅回复
+
     # ---- AI endpoint (fallback, no key in tests) ----
     def test_ai_suggest_fallback(self):
         r = self.client.post("/api/ai/suggest", json={"content": "这款多少钱？"})

@@ -1,15 +1,8 @@
-import { useEffect, useRef, useState } from 'react'
-import {
-  ArrowUp,
-  GitBranch,
-  LayoutDashboard,
-  LayoutGrid,
-  Sparkles,
-  Users,
-} from 'lucide-react'
-import type { LucideIcon } from 'lucide-react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
-import { aiSuggest } from '../api/client'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { ArrowUp, Sparkles } from 'lucide-react'
+import { useSearchParams } from 'react-router-dom'
+import { assistantChat } from '../api/client'
+import type { AssistantChatMessage } from '../api/types'
 import {
   getSession,
   newId,
@@ -17,20 +10,10 @@ import {
   titleFromMessage,
   type ChatMessage,
 } from '../lib/sessions'
+import { ChatActionCtx } from '../context/ChatActionContext'
+import ViewCard from '../components/views/ViewCard'
 
-interface QuickAction {
-  title: string
-  subtitle: string
-  icon: LucideIcon
-  to: string
-}
-
-const QUICK_ACTIONS: QuickAction[] = [
-  { title: '概览看板', subtitle: '关键指标与趋势', icon: LayoutDashboard, to: '/dashboard' },
-  { title: '客户画像', subtitle: '查看与管理客户', icon: Users, to: '/customers' },
-  { title: '自动化编排', subtitle: '拖拽式流程画布', icon: GitBranch, to: '/flows' },
-  { title: '全部功能', subtitle: '打开设置中心', icon: LayoutGrid, to: '/settings' },
-]
+const QUICK_PROMPTS = ['看板', '客户', '自动化流程', '会员', '渠道']
 
 function greeting(): string {
   const h = new Date().getHours()
@@ -45,7 +28,6 @@ function todayText(): string {
 }
 
 export default function ChatHome() {
-  const navigate = useNavigate()
   const [params, setParams] = useSearchParams()
   const sessionParam = params.get('session')
   const newParam = params.get('new')
@@ -55,6 +37,7 @@ export default function ChatHome() {
   const [sending, setSending] = useState(false)
   const idRef = useRef<string>(newId())
   const bottomRef = useRef<HTMLDivElement>(null)
+  const sendRef = useRef<(text: string) => void>(() => {})
 
   // Load a session or start fresh when the URL signal changes
   useEffect(() => {
@@ -71,14 +54,14 @@ export default function ChatHome() {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+  }, [messages, sending])
 
   const persist = (msgs: ChatMessage[], title: string) => {
     saveSession({ id: idRef.current, title, updatedAt: Date.now(), messages: msgs })
   }
 
-  const send = async () => {
-    const content = input.trim()
+  const send = async (text: string) => {
+    const content = text.trim()
     if (!content || sending) return
     const isFirst = messages.length === 0
     const title = isFirst
@@ -94,12 +77,17 @@ export default function ChatHome() {
 
     setSending(true)
     try {
-      const res = await aiSuggest({ content })
+      const history: AssistantChatMessage[] = afterUser.map((m) => ({
+        role: m.role,
+        content: m.content,
+      }))
+      const res = await assistantChat(history)
       const aiMsg: ChatMessage = {
         id: newId('m'),
         role: 'assistant',
-        content: res.suggestion || '（暂无建议）',
+        content: res.reply || '好的。',
         intent: res.intent,
+        views: res.views,
       }
       const afterAi = [...afterUser, aiMsg]
       setMessages(afterAi)
@@ -118,88 +106,89 @@ export default function ChatHome() {
     }
   }
 
+  sendRef.current = send
+  const actionValue = useMemo(() => ({ ask: (t: string) => sendRef.current(t) }), [])
+
   const empty = messages.length === 0
 
   return (
-    <div data-testid="chat-home" className="mx-auto flex h-full max-w-3xl flex-col">
-      {/* Conversation / welcome */}
-      <div className="flex-1 overflow-y-auto">
-        {empty ? (
-          <div className="flex h-full flex-col items-center justify-center px-4 text-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-sm">
-              <Sparkles size={26} />
-            </div>
-            <h1 className="mt-5 text-2xl font-semibold text-slate-800">
-              {greeting()}，运营管理员 👋
-            </h1>
-            <p className="mt-1 text-sm text-slate-400">{todayText()} · 今天想做点什么？</p>
-
-            <div className="mt-8 grid w-full grid-cols-2 gap-3 sm:grid-cols-4">
-              {QUICK_ACTIONS.map((a) => (
-                <button
-                  key={a.to}
-                  data-testid="quick-action"
-                  onClick={() => navigate(a.to)}
-                  className="flex flex-col items-start gap-2 rounded-2xl border border-slate-200/70 bg-white p-4 text-left shadow-card transition hover:border-brand-200 hover:shadow-md"
-                >
-                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-100 text-brand-600">
-                    <a.icon size={18} />
-                  </span>
-                  <span className="text-sm font-medium text-slate-700">{a.title}</span>
-                  <span className="text-xs text-slate-400">{a.subtitle}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-4 py-4">
-            {messages.map((m) => (
-              <ChatBubble key={m.id} message={m} />
-            ))}
-            {sending && (
-              <div className="flex items-start gap-3">
-                <AiAvatar />
-                <div className="rounded-2xl rounded-tl-sm border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-400">
-                  正在思考…
-                </div>
+    <ChatActionCtx.Provider value={actionValue}>
+      <div data-testid="chat-home" className="mx-auto flex h-full max-w-3xl flex-col">
+        {/* Conversation / welcome */}
+        <div className="flex-1 overflow-y-auto">
+          {empty ? (
+            <div className="flex h-full flex-col items-center justify-center px-4 text-center">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-sm">
+                <Sparkles size={26} />
               </div>
-            )}
-            <div ref={bottomRef} />
-          </div>
-        )}
-      </div>
+              <h1 className="mt-5 text-2xl font-semibold text-slate-800">
+                {greeting()}，运营管理员 👋
+              </h1>
+              <p className="mt-1 text-sm text-slate-400">{todayText()} · 我能在对话里帮你完成营销运营</p>
 
-      {/* Input */}
-      <div className="pt-3 pb-1">
-        <div className="flex items-end gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm focus-within:border-brand-400 focus-within:ring-2 focus-within:ring-brand-100">
-          <textarea
-            data-testid="chat-input"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault()
-                send()
-              }
-            }}
-            rows={1}
-            placeholder="让我帮你做营销自动化、查客户、建流程…"
-            className="max-h-40 min-h-[40px] flex-1 resize-none bg-transparent px-2 py-2 text-sm text-slate-700 outline-none placeholder:text-slate-400"
-          />
-          <button
-            data-testid="chat-send"
-            onClick={send}
-            disabled={sending || !input.trim()}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-600 text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            <ArrowUp size={18} />
-          </button>
+              <div className="mt-7 flex flex-wrap justify-center gap-2">
+                {QUICK_PROMPTS.map((p) => (
+                  <button
+                    key={p}
+                    data-testid="quick-action"
+                    onClick={() => send(p)}
+                    className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm text-slate-600 shadow-sm transition hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700"
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-5 py-4">
+              {messages.map((m) => (
+                <ChatBubble key={m.id} message={m} />
+              ))}
+              {sending && (
+                <div className="flex items-start gap-3">
+                  <AiAvatar />
+                  <div className="rounded-2xl rounded-tl-sm border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-400">
+                    正在思考…
+                  </div>
+                </div>
+              )}
+              <div ref={bottomRef} />
+            </div>
+          )}
         </div>
-        <p className="mt-2 text-center text-[11px] text-slate-400">
-          Nebula AI 助手 · 由 DeepSeek 提供能力支持
-        </p>
+
+        {/* Input */}
+        <div className="pt-3 pb-1">
+          <div className="flex items-end gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm focus-within:border-brand-400 focus-within:ring-2 focus-within:ring-brand-100">
+            <textarea
+              data-testid="chat-input"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault()
+                  send(input)
+                }
+              }}
+              rows={1}
+              placeholder="让我帮你做营销自动化、查客户、建流程…"
+              className="max-h-40 min-h-[40px] flex-1 resize-none bg-transparent px-2 py-2 text-sm text-slate-700 outline-none placeholder:text-slate-400"
+            />
+            <button
+              data-testid="chat-send"
+              onClick={() => send(input)}
+              disabled={sending || !input.trim()}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-600 text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <ArrowUp size={18} />
+            </button>
+          </div>
+          <p className="mt-2 text-center text-[11px] text-slate-400">
+            Nebula AI 助手 · 在对话中直接调用全部营销能力
+          </p>
+        </div>
       </div>
-    </div>
+    </ChatActionCtx.Provider>
   )
 }
 
@@ -216,25 +205,34 @@ function ChatBubble({ message }: { message: ChatMessage }) {
   if (isUser) {
     return (
       <div data-testid="chat-message" data-role="user" className="flex justify-end">
-        <div className="max-w-[80%] rounded-2xl rounded-tr-sm bg-brand-600 px-4 py-2.5 text-sm text-white">
+        <div className="max-w-[85%] rounded-2xl rounded-tr-sm bg-brand-600 px-4 py-2.5 text-sm text-white">
           {message.content}
         </div>
       </div>
     )
   }
   return (
-    <div data-testid="chat-message" data-role="assistant" className="flex items-start gap-3">
-      <AiAvatar />
-      <div className="max-w-[80%]">
-        {message.intent && (
-          <span className="mb-1 inline-flex items-center rounded-full bg-brand-100 px-2 py-0.5 text-[11px] font-medium text-brand-700">
-            {message.intent}
-          </span>
-        )}
-        <div className="whitespace-pre-wrap rounded-2xl rounded-tl-sm border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700">
-          {message.content}
+    <div data-testid="chat-message" data-role="assistant" className="flex flex-col items-start gap-1">
+      <div className="flex items-start gap-3">
+        <AiAvatar />
+        <div className="max-w-[85%]">
+          {message.intent && (
+            <span className="mb-1 inline-flex items-center rounded-full bg-brand-100 px-2 py-0.5 text-[11px] font-medium text-brand-700">
+              {message.intent}
+            </span>
+          )}
+          <div className="whitespace-pre-wrap rounded-2xl rounded-tl-sm border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700">
+            {message.content}
+          </div>
         </div>
       </div>
+      {message.views && message.views.length > 0 && (
+        <div className="w-full space-y-2 pl-11">
+          {message.views.map((v, i) => (
+            <ViewCard key={i} view={v} />
+          ))}
+        </div>
+      )}
     </div>
   )
 }

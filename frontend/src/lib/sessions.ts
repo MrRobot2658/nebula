@@ -1,3 +1,5 @@
+import type { ChatView } from '../api/types'
+
 export type ChatRole = 'user' | 'assistant'
 
 export interface ChatMessage {
@@ -5,6 +7,7 @@ export interface ChatMessage {
   role: ChatRole
   content: string
   intent?: string
+  views?: ChatView[]
 }
 
 export interface ChatSession {

@@ -344,3 +344,34 @@ export interface AbResult {
   variant: string
   count: number
 }
+
+// ---- Assistant chat (conversation-first) ----
+export type ChatView =
+  | { type: 'dashboard' }
+  | { type: 'customers'; query?: string }
+  | { type: 'profile'; customer_id: number }
+  | { type: 'channels' }
+  | { type: 'members' }
+  | { type: 'flows' }
+  | { type: 'scoring' }
+  | { type: 'events' }
+  | { type: 'templates' }
+  | { type: 'campaigns' }
+  | { type: 'forms' }
+  | { type: 'landing' }
+  | { type: 'posters' }
+  | { type: 'webinars' }
+  | { type: 'offline' }
+
+export type ChatViewType = ChatView['type']
+
+export interface AssistantChatMessage {
+  role: 'user' | 'assistant'
+  content: string
+}
+
+export interface AssistantChatResponse {
+  reply: string
+  intent: string
+  views: ChatView[]
+}

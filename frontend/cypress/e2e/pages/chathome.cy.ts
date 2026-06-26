@@ -1,24 +1,27 @@
 /// <reference types="cypress" />
 
-describe('ChatHome 对话首页', () => {
-  it('渲染欢迎页并能与 AI 助手对话', () => {
+describe('ChatApp 对话式工作台', () => {
+  it('在对话中通过指令渲染内联功能卡片', () => {
     cy.visit('/')
 
     cy.get('[data-testid="chat-home"]', { timeout: 15000 }).should('be.visible')
     cy.get('[data-testid="quick-action"]').its('length').should('be.gte', 1)
 
-    // 输入并发送
-    cy.get('[data-testid="chat-input"]').type('帮我看看高价值客户')
+    // 卡片在可滚动的对话区内，用 scrollIntoView + exist 断言（避免被 overflow 裁剪判为不可见）
+    // 客户 → 内联客户卡片
+    cy.get('[data-testid="chat-input"]').type('客户')
     cy.get('[data-testid="chat-send"]').click()
+    cy.get('[data-testid="chat-message"][data-role="user"]', { timeout: 15000 }).should('exist')
+    cy.get('[data-testid="view-customers"]', { timeout: 25000 }).scrollIntoView().should('exist')
 
-    // 用户消息气泡出现
-    cy.get('[data-testid="chat-message"][data-role="user"]', { timeout: 15000 }).should(
-      'be.visible'
-    )
+    // 看板 → 内联概览卡片
+    cy.get('[data-testid="chat-input"]').type('看板')
+    cy.get('[data-testid="chat-send"]').click()
+    cy.get('[data-testid="view-dashboard"]', { timeout: 25000 }).scrollIntoView().should('exist')
 
-    // AI 助手回复气泡出现（AI 调用，给较长超时）
-    cy.get('[data-testid="chat-message"][data-role="assistant"]', { timeout: 25000 }).should(
-      'be.visible'
-    )
+    // 自动化流程 → 内联流程卡片
+    cy.get('[data-testid="chat-input"]').type('自动化流程')
+    cy.get('[data-testid="chat-send"]').click()
+    cy.get('[data-testid="view-flows"]', { timeout: 25000 }).scrollIntoView().should('exist')
   })
 })

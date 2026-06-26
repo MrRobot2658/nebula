@@ -2,6 +2,8 @@ import axios from 'axios'
 import type {
   AbResult,
   AiSuggestResponse,
+  AssistantChatMessage,
+  AssistantChatResponse,
   Automation,
   AutomationRun,
   Campaign,
@@ -212,6 +214,13 @@ export async function createScoreRule(body: {
 }
 
 // ---- AI ----
+export async function assistantChat(
+  messages: AssistantChatMessage[]
+): Promise<AssistantChatResponse> {
+  const { data } = await api.post<AssistantChatResponse>('/assistant/chat', { messages })
+  return data
+}
+
 export const aiSuggest = (body: { customer_id?: number; content: string }) =>
   api.post<AiSuggestResponse>('/ai/suggest', body).then((r) => r.data)
 

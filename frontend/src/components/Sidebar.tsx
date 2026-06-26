@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { MessageSquare, Plus, Settings, Sparkles } from 'lucide-react'
+import { GitBranch, MessageSquare, Plus, Settings, Sparkles } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import clsx from 'clsx'
 import {
@@ -79,8 +79,20 @@ export default function Sidebar() {
         )}
       </div>
 
-      {/* Settings pinned bottom */}
-      <div className="border-t border-slate-100 p-3">
+      {/* Fixed feature item + settings pinned bottom */}
+      <div className="space-y-1 border-t border-slate-100 p-3">
+        <button
+          data-testid="canvas-nav"
+          onClick={() => navigate('/flows')}
+          className={clsx(
+            'flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors',
+            location.pathname.startsWith('/flows')
+              ? 'bg-brand-50 text-brand-700'
+              : 'text-slate-600 hover:bg-slate-50'
+          )}
+        >
+          <GitBranch size={16} /> 营销画布
+        </button>
         <button
           data-testid="settings-nav"
           onClick={() => navigate('/settings')}
